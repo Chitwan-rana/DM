@@ -30,11 +30,59 @@
 <link href="{% static 'assets/css/main.css' %}" rel="stylesheet">
 
 <style>
-  .header {
-    background-color: #black; /* Set your desired background color */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Optional: add shadow for depth */
-    transition: background-color 0.3s ease, box-shadow 0.3s ease;
-}
+  .header .container {
+    display: flex;
+    justify-content: space-between; 
+    align-items: center;
+    width: 100%;
+  }
+  
+  
+  .logo {
+    display: flex;
+    align-items: center;
+  }
+  
+  
+  .nav-links {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    justify-content: center;
+    flex-grow: 1; 
+  }
+  
+  .nav-links li {
+    margin: 0 15px;
+  }
+  
+  
+  .auth-links {
+    display: flex;
+    list-style: none;
+    margin:0;
+    padding: 0;
+  }
+  
+  .auth-links li {
+    margin-left: 30px; 
+  }
+  
+  .mobile-nav-toggle {
+    display: none;
+  }
+  
+  
+  @media (max-width: 768px) {
+    .nav-links {
+        display: none; 
+    }
+  
+    .mobile-nav-toggle {
+        display: block;
+    }
+  }
 </style>
 
 </head>
@@ -45,7 +93,7 @@
     <div class="container-fluid container-xl position-relative d-flex align-items-center justify-content-between">
       
       <!-- Logo on the left -->
-      <a href="index.html" class="logo d-flex align-items-center">
+      <a href="/" class="logo d-flex align-items-center">
         <h1 class="sitename" style="margin-right:20px;">Document Manager</h1>
       </a>
   
