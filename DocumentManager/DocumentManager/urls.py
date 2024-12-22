@@ -22,12 +22,12 @@ from Document.views import *
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    # path('accounts/', include('accounts.urls')),
-    path('', Home,name='homes'),
+    path('', Home,name='Home'),
     path('register/', register, name='register'),
     path('login/', user_login, name='login'),
     path('logout/', user_logout, name='logout'),
     path('pipeline/',pipeline,name='pipeline'),
+
 
 ]
 if settings.DEBUG:

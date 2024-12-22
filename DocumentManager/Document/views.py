@@ -1,14 +1,15 @@
-from django.shortcuts import render
-
-# Create your views here.
-def Home(request):
-     return render(request,'index.html')
-
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from .forms import RegistrationForm
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+
+
+
+
+def Home(request):
+    return render(request, 'index.html', {'username': request.user.username})
 
 def register(request):
     if request.method == 'POST':
@@ -42,6 +43,20 @@ def user_logout(request):
 
 def pipeline(request):
     return render(request,'pipeline.html')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -93,38 +93,22 @@
     <div class="container-fluid container-xl position-relative d-flex align-items-center justify-content-between">
       
       <!-- Logo on the left -->
-      <a href="index.html" class="logo d-flex align-items-center">
-        <h1 class="sitename" style="margin-right:20px;">Document Manager</h1>
+      <a href="#" class="logo d-flex align-items-center">
+        {% if user.is_authenticated %}
+          <h1 class="sitename" style="margin-right:20px;">Hello, {{ user.username }}!</h1>
+        {% else %}
+          <h1 class="sitename" style="margin-right:20px;">Document Manager</h1>
+        {% endif %}
       </a>
-  
-      <!-- Navigation Links (centered) -->
+      
       <nav id="navmenu" class="navmenu">
         <ul class="nav-links">
           <li><a href="#hero" class="active">Home</a></li>
-          <li><a href="#about">About</a></li>
-          <li><a href="#services">Services</a></li>
-          <li class="dropdown">
-            <a href="#"><span>Dropdown</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
-            <ul>
-              <li><a href="#">Dropdown 1</a></li>
-              <li class="dropdown">
-                <a href="#"><span>Deep Dropdown</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
-                <ul>
-                  <li><a href="#">Deep Dropdown 1</a></li>
-                  <li><a href="#">Deep Dropdown 2</a></li>
-                  <li><a href="#">Deep Dropdown 3</a></li>
-                  <li><a href="#">Deep Dropdown 4</a></li>
-                  <li><a href="#">Deep Dropdown 5</a></li>
-                </ul>
-              </li>
-              <li><a href="#">Dropdown 2</a></li>
-              <li><a href="#">Dropdown 3</a></li>
-              <li><a href="#">Dropdown 4</a></li>
-            </ul>
-          </li>
-          <li><a href="#contact">Contact</a></li>
-        </ul>
+          <li><a href="#" class="active">Visualizations</a></li>
+          <li><a href="{% url 'pipeline' %}">Checkout Pipeline</a></li>
+
       </nav>
+      
   
       <!-- Auth Links (SignUp & Login on the right) -->
       <ul class="auth-links">
@@ -203,42 +187,6 @@
       </svg>
 
     </section><!-- /Hero Section -->
-
-    <!-- About Section -->
-    <section id="about" class="about section">
-
-      <!-- Section Title -->
-      <div class="container section-title" data-aos="fade-up">
-        <h2>About</h2>
-        <p>What We Do </p>
-      </div><!-- End Section Title -->
-
-      <div class="container">
-
-        <div class="row gy-4">
-
-          <div class="col-lg-6 content" data-aos="fade-up" data-aos-delay="100">
-            <p>
-              
-Our Document Manager features automated data extraction, real-time search, and secure cloud storage for enhanced efficiency. Combined with EOB processing, digitization, and PDF conversion, it streamlines document management.
-            </p>
-            <ul>
-              <li><i class="bi bi-check2-circle"></i> <span><b>EOB document</b> processing to streamline billing, enhance revenue cycle management, and improve transparency.</span></li>
-              <li><i class="bi bi-check2-circle"></i> <span>We offer <b>digitization</b> services to convert physical documents into accessible, secure, and organized digital formats.</span></li>
-              <li><i class="bi bi-check2-circle"></i> <span>We offer <b> extraction, summarization,</b> and <b>PDF conversion </b> known as <b>PDF Intelligence Suite</b> services to transform and streamline your documents efficiently.</span></li>
-            </ul>
-          </div>
-
-          <div class="col-lg-6" data-aos="fade-up" data-aos-delay="200">
-            <p>We offer comprehensive services including EOB document processing, digitization, extraction, summarization, and PDF conversion to streamline your document management. Our EOB processing helps healthcare organizations efficiently break down insurance details, streamline billing, and enhance revenue cycle management. With our digitization services, we convert physical documents into organized, accessible, and secure digital formats, saving time and improving accessibility. Our extraction and summarization services ensure accurate data capture and concise information, while PDF conversion allows seamless file handling and storage.</p>
-            <a href="#services" class="read-more"><span>Read More</span><i class="bi bi-arrow-right"></i></a>
-          </div>
-
-        </div>
-
-      </div>
-
-    </section><!-- /About Section -->
 
     <!-- Features Section -->
     <section id="features" class="features section">
@@ -353,7 +301,7 @@ Our Document Manager features automated data extraction, real-time search, and s
           <div class="tab-pane fade" id="features-tab-4">
             <div class="row">
               <div class="col-lg-6 order-2 order-lg-1 mt-3 mt-lg-0">
-                <h3>The analytics section focuses on how data extracted and processed from various documents, such as medical records and insurance claims used to generate insights, reports, and visualizations.</h3>
+                <h3>It focuses on how data extracted and processed from various documents, such as medical records and insurance claims used to generate insights, reports, and visualizations.</h3>
                 <p>
                   Analytics involves a multi-step process, beginning with data extraction, followed by enrichment through NLP and machine learning models. This data is then used for real-time analytics, generating visualizations and reports, and supporting decision-making to optimize revenue cycle processes in industries like healthcare.
                 </p>
@@ -378,24 +326,6 @@ Our Document Manager features automated data extraction, real-time search, and s
 
     </section><!-- /Features Section -->
 
-    <!-- Call To Action Section -->
-    <section id="call-to-action" class="call-to-action section dark-background">
-
-      <div class="container">
-
-        <div class="row" data-aos="zoom-in" data-aos-delay="100">
-          <div class="col-xl-9 text-center text-xl-start">
-            <h3>Call To Action</h3>
-            <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-          </div>
-          <div class="col-xl-3 cta-btn-container text-center">
-            <a class="cta-btn align-middle" href="#">Call To Action</a>
-          </div>
-        </div>
-
-      </div>
-
-    </section><!-- /Call To Action Section -->
 
     <!-- Services Section -->
     <section id="services" class="services section">
@@ -416,9 +346,9 @@ Our Document Manager features automated data extraction, real-time search, and s
                 <i class="bi bi-cash-stack" style="color: #0dcaf0;"></i>
               </div>
               <a href="service-details.html" class="stretched-link">
-                <h3>Nesciunt Mete</h3>
+                <h3>Digitization</h3>
               </a>
-              <p>Provident nihil minus qui consequatur non omnis maiores. Eos accusantium minus dolores iure perferendis tempore et consequatur.</p>
+              <p>With a commitment to precision and efficiency, we expertly transform stacks of paper into well-organized, easily accessible digital archives, ensuring seamless retrieval and secure, reliable storage solutions.</p>
             </div>
           </div><!-- End Service Item -->
 
@@ -428,9 +358,9 @@ Our Document Manager features automated data extraction, real-time search, and s
                 <i class="bi bi-calendar4-week" style="color: #fd7e14;"></i>
               </div>
               <a href="service-details.html" class="stretched-link">
-                <h3>Eosle Commodi</h3>
+                <h3>EOB</h3>
               </a>
-              <p>Ut autem aut autem non a. Sint sint sit facilis nam iusto sint. Libero corrupti neque eum hic non ut nesciunt dolorem.</p>
+              <p>Our company boasts expertise in extracting valuable data from Explanation of Benefits (EOB) documents, empowering healthcare organizations with actionable insights for optimized operations and patient care.</p>
             </div>
           </div><!-- End Service Item -->
 
@@ -440,9 +370,9 @@ Our Document Manager features automated data extraction, real-time search, and s
                 <i class="bi bi-chat-text" style="color: #20c997;"></i>
               </div>
               <a href="service-details.html" class="stretched-link">
-                <h3>Ledo Markt</h3>
+                <h3>In House Expertise</h3>
               </a>
-              <p>Ut excepturi voluptatem nisi sed. Quidem fuga consequatur. Minus ea aut. Vel qui id voluptas adipisci eos earum corrupti.</p>
+              <p>Redefine the landscape of data extraction, delivering precision and efficiency. With deep expertise and cutting-edge techniques, our team harnesses the power of data to unlock valuable insights, driving informed decision-making..</p>
             </div>
           </div><!-- End Service Item -->
 
@@ -452,9 +382,9 @@ Our Document Manager features automated data extraction, real-time search, and s
                 <i class="bi bi-credit-card-2-front" style="color: #df1529;"></i>
               </div>
               <a href="service-details.html" class="stretched-link">
-                <h3>Asperiores Commodit</h3>
+                <h3>Extraction</h3>
               </a>
-              <p>Non et temporibus minus omnis sed dolor esse consequatur. Cupiditate sed error ea fuga sit provident adipisci neque.</p>
+              <p>Data extraction from PDF documents involves the process of retrieving specific information and converting it into a usable digital format for analysis, storage, or integration into other systems.</p>
             </div>
           </div><!-- End Service Item -->
 
@@ -464,9 +394,9 @@ Our Document Manager features automated data extraction, real-time search, and s
                 <i class="bi bi-globe" style="color: #6610f2;"></i>
               </div>
               <a href="service-details.html" class="stretched-link">
-                <h3>Velit Doloremque</h3>
+                <h3>Summarization</h3>
               </a>
-              <p>Cumque et suscipit saepe. Est maiores autem enim facilis ut aut ipsam corporis aut. Sed animi at autem alias eius labore.</p>
+              <p>Through meticulous data summarization and analysis, we efficiently distill complex information into concise, actionable insights, empowering strategic and informed decision-making processes effectively.</p>
             </div>
           </div><!-- End Service Item -->
 
@@ -476,9 +406,9 @@ Our Document Manager features automated data extraction, real-time search, and s
                 <i class="bi bi-clock" style="color: #f3268c;"></i>
               </div>
               <a href="service-details.html" class="stretched-link">
-                <h3>Dolori Architecto</h3>
+                <h3>PDF Conversion</h3>
               </a>
-              <p>Hic molestias ea quibusdam eos. Fugiat enim doloremque aut neque non et debitis iure. Corrupti recusandae ducimus enim.</p>
+              <p>Unlock the full potential of your PDF documents through a range of conversions, from transforming them into searchable files for enhanced accessibility, to making them editable for seamless collaboration and customization.</p>
             </div>
           </div><!-- End Service Item -->
 
@@ -487,224 +417,6 @@ Our Document Manager features automated data extraction, real-time search, and s
       </div>
 
     </section><!-- /Services Section -->
-
-   
-
-    <!-- Testimonials Section -->
-    <section id="testimonials" class="testimonials section">
-
-      <!-- Section Title -->
-      <div class="container section-title" data-aos="fade-up">
-        <h2>Testimonials</h2>
-        <p>What they are saying about us</p>
-      </div><!-- End Section Title -->
-
-      <div class="container" data-aos="fade-up" data-aos-delay="100">
-
-        <div class="swiper init-swiper">
-          <script type="application/json" class="swiper-config">
-            {
-              "loop": true,
-              "speed": 600,
-              "autoplay": {
-                "delay": 5000
-              },
-              "slidesPerView": "auto",
-              "pagination": {
-                "el": ".swiper-pagination",
-                "type": "bullets",
-                "clickable": true
-              },
-              "breakpoints": {
-                "320": {
-                  "slidesPerView": 1,
-                  "spaceBetween": 40
-                },
-                "1200": {
-                  "slidesPerView": 3,
-                  "spaceBetween": 10
-                }
-              }
-            }
-          </script>
-          <div class="swiper-wrapper">
-
-            <div class="swiper-slide">
-              <div class="testimonial-item">
-                <img src="assets/img/testimonials/testimonials-1.jpg" class="testimonial-img" alt="">
-                <h3>Saul Goodman</h3>
-                <h4>Ceo &amp; Founder</h4>
-                <div class="stars">
-                  <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
-                </div>
-                <p>
-                  <i class="bi bi-quote quote-icon-left"></i>
-                  <span>Proin iaculis purus consequat sem cure digni ssim donec porttitora entum suscipit rhoncus. Accusantium quam, ultricies eget id, aliquam eget nibh et. Maecen aliquam, risus at semper.</span>
-                  <i class="bi bi-quote quote-icon-right"></i>
-                </p>
-              </div>
-            </div><!-- End testimonial item -->
-
-            <div class="swiper-slide">
-              <div class="testimonial-item">
-                <img src="assets/img/testimonials/testimonials-2.jpg" class="testimonial-img" alt="">
-                <h3>Sara Wilsson</h3>
-                <h4>Designer</h4>
-                <div class="stars">
-                  <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
-                </div>
-                <p>
-                  <i class="bi bi-quote quote-icon-left"></i>
-                  <span>Export tempor illum tamen malis malis eram quae irure esse labore quem cillum quid cillum eram malis quorum velit fore eram velit sunt aliqua noster fugiat irure amet legam anim culpa.</span>
-                  <i class="bi bi-quote quote-icon-right"></i>
-                </p>
-              </div>
-            </div><!-- End testimonial item -->
-
-            <div class="swiper-slide">
-              <div class="testimonial-item">
-                <img src="assets/img/testimonials/testimonials-3.jpg" class="testimonial-img" alt="">
-                <h3>Jena Karlis</h3>
-                <h4>Store Owner</h4>
-                <div class="stars">
-                  <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
-                </div>
-                <p>
-                  <i class="bi bi-quote quote-icon-left"></i>
-                  <span>Enim nisi quem export duis labore cillum quae magna enim sint quorum nulla quem veniam duis minim tempor labore quem eram duis noster aute amet eram fore quis sint minim.</span>
-                  <i class="bi bi-quote quote-icon-right"></i>
-                </p>
-              </div>
-            </div><!-- End testimonial item -->
-
-            <div class="swiper-slide">
-              <div class="testimonial-item">
-                <img src="assets/img/testimonials/testimonials-4.jpg" class="testimonial-img" alt="">
-                <h3>Matt Brandon</h3>
-                <h4>Freelancer</h4>
-                <div class="stars">
-                  <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
-                </div>
-                <p>
-                  <i class="bi bi-quote quote-icon-left"></i>
-                  <span>Fugiat enim eram quae cillum dolore dolor amet nulla culpa multos export minim fugiat minim velit minim dolor enim duis veniam ipsum anim magna sunt elit fore quem dolore labore illum veniam.</span>
-                  <i class="bi bi-quote quote-icon-right"></i>
-                </p>
-              </div>
-            </div><!-- End testimonial item -->
-
-            <div class="swiper-slide">
-              <div class="testimonial-item">
-                <img src="assets/img/testimonials/testimonials-5.jpg" class="testimonial-img" alt="">
-                <h3>John Larson</h3>
-                <h4>Entrepreneur</h4>
-                <div class="stars">
-                  <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
-                </div>
-                <p>
-                  <i class="bi bi-quote quote-icon-left"></i>
-                  <span>Quis quorum aliqua sint quem legam fore sunt eram irure aliqua veniam tempor noster veniam enim culpa labore duis sunt culpa nulla illum cillum fugiat legam esse veniam culpa fore nisi cillum quid.</span>
-                  <i class="bi bi-quote quote-icon-right"></i>
-                </p>
-              </div>
-            </div><!-- End testimonial item -->
-
-          </div>
-          <div class="swiper-pagination"></div>
-        </div>
-
-      </div>
-
-    </section><!-- /Testimonials Section -->
-
-    <!-- Pricing Section -->
-    <section id="pricing" class="pricing section">
-
-      <!-- Section Title -->
-      <div class="container section-title" data-aos="fade-up">
-        <h2>Pricing</h2>
-        <p>What they are saying about us</p>
-      </div><!-- End Section Title -->
-
-      <div class="container">
-
-        <div class="row gy-3">
-
-          <div class="col-xl-3 col-lg-6" data-aos="fade-up" data-aos-delay="100">
-            <div class="pricing-item">
-              <h3>Free</h3>
-              <h4><sup>$</sup>0<span> / month</span></h4>
-              <ul>
-                <li>Aida dere</li>
-                <li>Nec feugiat nisl</li>
-                <li>Nulla at volutpat dola</li>
-                <li class="na">Pharetra massa</li>
-                <li class="na">Massa ultricies mi</li>
-              </ul>
-              <div class="btn-wrap">
-                <a href="#" class="btn-buy">Buy Now</a>
-              </div>
-            </div>
-          </div><!-- End Pricing Item -->
-
-          <div class="col-xl-3 col-lg-6" data-aos="fade-up" data-aos-delay="200">
-            <div class="pricing-item featured">
-              <h3>Business</h3>
-              <h4><sup>$</sup>19<span> / month</span></h4>
-              <ul>
-                <li>Aida dere</li>
-                <li>Nec feugiat nisl</li>
-                <li>Nulla at volutpat dola</li>
-                <li>Pharetra massa</li>
-                <li class="na">Massa ultricies mi</li>
-              </ul>
-              <div class="btn-wrap">
-                <a href="#" class="btn-buy">Buy Now</a>
-              </div>
-            </div>
-          </div><!-- End Pricing Item -->
-
-          <div class="col-xl-3 col-lg-6" data-aos="fade-up" data-aos-delay="400">
-            <div class="pricing-item">
-              <h3>Developer</h3>
-              <h4><sup>$</sup>29<span> / month</span></h4>
-              <ul>
-                <li>Aida dere</li>
-                <li>Nec feugiat nisl</li>
-                <li>Nulla at volutpat dola</li>
-                <li>Pharetra massa</li>
-                <li>Massa ultricies mi</li>
-              </ul>
-              <div class="btn-wrap">
-                <a href="#" class="btn-buy">Buy Now</a>
-              </div>
-            </div>
-          </div><!-- End Pricing Item -->
-
-          <div class="col-xl-3 col-lg-6" data-aos="fade-up" data-aos-delay="400">
-            <div class="pricing-item">
-              <span class="advanced">Advanced</span>
-              <h3>Ultimate</h3>
-              <h4><sup>$</sup>49<span> / month</span></h4>
-              <ul>
-                <li>Aida dere</li>
-                <li>Nec feugiat nisl</li>
-                <li>Nulla at volutpat dola</li>
-                <li>Pharetra massa</li>
-                <li>Massa ultricies mi</li>
-              </ul>
-              <div class="btn-wrap">
-                <a href="#" class="btn-buy">Buy Now</a>
-              </div>
-            </div>
-          </div><!-- End Pricing Item -->
-
-        </div>
-
-      </div>
-
-    </section><!-- /Pricing Section -->
-
     <!-- Faq Section -->
     <section id="faq" class="faq section">
       <!-- Section Title -->
@@ -720,16 +432,13 @@ Our Document Manager features automated data extraction, real-time search, and s
               <div class="accordion-item">
                 <h2 class="mb-0">
                   <button class="btn btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-faq-1">
-                    How to download and register?
+                    Why digitization of paper documents is necessary?
                   </button>
                 </h2>
 
                 <div id="collapse-faq-1" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion-faq">
                   <div class="accordion-body">
-                    Far far away, behind the word mountains, far from the countries
-                    Vokalia and Consonantia, there live the blind texts. Separated
-                    they live in Bookmarksgrove right at the coast of the Semantics,
-                    a large language ocean.
+                    The digitization of paper documents isn't just a modern convenience; it's a strategic imperative for organizations navigating today's fast-paced digital landscape. By embracing digitization, businesses streamline operations, enhance accessibility, and fortify data security. Say goodbye to cumbersome filing systems and hello to seamless information retrieval at your fingertips. Embrace the future of efficiency and innovation with the transformational power of digitization
                   </div>
                 </div>
               </div>
@@ -738,14 +447,12 @@ Our Document Manager features automated data extraction, real-time search, and s
               <div class="accordion-item">
                 <h2 class="mb-0">
                   <button class="btn btn-link collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-faq-2">
-                How to create your paypal account?
+                    How we do it?
               </button>
             </h2>
             <div id="collapse-faq-2" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion-faq">
                     <div class="accordion-body">
-                      A small river named Duden flows by their place and supplies it
-                      with the necessary regelialia. It is a paradisematic country, in
-                      which roasted parts of sentences fly into your mouth.
+                      Our solution is a combination of latest and greatest technologies that we leverage to build the best of both worlds. We developed a propiretary solution that allows us to extract data from medicaid files with 100% accuracy
                     </div>
               </div>
             </div>
@@ -754,17 +461,13 @@ Our Document Manager features automated data extraction, real-time search, and s
             <div class="accordion-item">
               <h2 class="mb-0">
                 <button class="btn btn-link collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-faq-3">
-                  How to link your paypal and bank account?
+                  Which service to choose and why?
                 </button>
               </h2>
 
               <div id="collapse-faq-3" class="collapse" aria-labelledby="headingThree" data-parent="#accordion-faq">
                 <div class="accordion-body">
-                  When she reached the first hills of the Italic Mountains, she
-                  had a last view back on the skyline of her hometown
-                  Bookmarksgrove, the headline of Alphabet Village and the subline
-                  of her own road, the Line Lane. Pityful a rethoric question ran
-                  over her cheek, then she continued her way.
+                  Analytics or Extraction we work on both to give you the best results for your business.
                 </div>
               </div>
             </div>
@@ -777,83 +480,6 @@ Our Document Manager features automated data extraction, real-time search, and s
     </section><!-- /Faq Section -->
 
 
-    <!-- Contact Section -->
-    <section id="contact" class="contact section">
-
-      <!-- Section Title -->
-      <div class="container section-title" data-aos="fade-up">
-        <h2>Contact</h2>
-        <p>Contact Us</p>
-      </div><!-- End Section Title -->
-
-      <div class="container" data-aos="fade" data-aos-delay="100">
-
-        <div class="row gy-4">
-
-          <div class="col-lg-4">
-            <div class="info-item d-flex" data-aos="fade-up" data-aos-delay="200">
-              <i class="bi bi-geo-alt flex-shrink-0"></i>
-              <div>
-                <h3>Address</h3>
-                <p>A108 Adam Street, New York, NY 535022</p>
-              </div>
-            </div><!-- End Info Item -->
-
-            <div class="info-item d-flex" data-aos="fade-up" data-aos-delay="300">
-              <i class="bi bi-telephone flex-shrink-0"></i>
-              <div>
-                <h3>Call Us</h3>
-                <p>+1 5589 55488 55</p>
-              </div>
-            </div><!-- End Info Item -->
-
-            <div class="info-item d-flex" data-aos="fade-up" data-aos-delay="400">
-              <i class="bi bi-envelope flex-shrink-0"></i>
-              <div>
-                <h3>Email Us</h3>
-                <p>info@example.com</p>
-              </div>
-            </div><!-- End Info Item -->
-
-          </div>
-
-          <div class="col-lg-8">
-            <form action="forms/contact.php" method="post" class="php-email-form" data-aos="fade-up" data-aos-delay="200">
-              <div class="row gy-4">
-
-                <div class="col-md-6">
-                  <input type="text" name="name" class="form-control" placeholder="Your Name" required="">
-                </div>
-
-                <div class="col-md-6 ">
-                  <input type="email" class="form-control" name="email" placeholder="Your Email" required="">
-                </div>
-
-                <div class="col-md-12">
-                  <input type="text" class="form-control" name="subject" placeholder="Subject" required="">
-                </div>
-
-                <div class="col-md-12">
-                  <textarea class="form-control" name="message" rows="6" placeholder="Message" required=""></textarea>
-                </div>
-
-                <div class="col-md-12 text-center">
-                  <div class="loading">Loading</div>
-                  <div class="error-message"></div>
-                  <div class="sent-message">Your message has been sent. Thank you!</div>
-
-                  <button type="submit">Send Message</button>
-                </div>
-
-              </div>
-            </form>
-          </div><!-- End Contact Form -->
-
-        </div>
-
-      </div>
-
-    </section><!-- /Contact Section -->
 
   </main>
 
@@ -870,7 +496,7 @@ Our Document Manager features automated data extraction, real-time search, and s
       </div>
       <div class="container">
         <div class="copyright">
-          <span>Copyright</span> <strong class="px-1 sitename">Selecao</strong> <span>All Rights Reserved</span>
+          <span>Copyright</span> <strong class="px-1 sitename">Document Manager</strong> <span>All Rights Reserved</span>
         </div>
         <div class="credits">
           <!-- All the links in the footer should remain intact. -->
