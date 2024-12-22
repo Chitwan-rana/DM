@@ -84,6 +84,54 @@
   }
 }
 
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .card {
+    flex: 1;
+    margin: 10px;
+    padding: 20px;
+    text-align: center;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  .chart-container {
+    flex: 1;
+    margin: 10px;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  .chart-container_user {
+    flex: 1;
+    margin: 10px;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    max-width: 600px; 
+    width: 100%; 
+    height: 340px; 
+    box-sizing: border-box; 
+  }
+
+  canvas {
+    width: 100% !important;
+    height: auto !important;
+  }
+
+
+
 </style>
 </head>
 
@@ -104,7 +152,7 @@
       <nav id="navmenu" class="navmenu">
         <ul class="nav-links">
           <li><a href="#hero" class="active">Home</a></li>
-          <li><a href="#" class="active">Visualizations</a></li>
+          <li><a href="#dashboard" class="active">Visualizations</a></li>
           <li><a href="{% url 'pipeline' %}">Checkout Pipeline</a></li>
 
       </nav>
@@ -126,7 +174,6 @@
     </div>
   </header>
   
-
   <main class="main">
 
     <!-- Hero Section -->
@@ -187,6 +234,47 @@
       </svg>
 
     </section><!-- /Hero Section -->
+
+
+    <section id="dashboard" style="padding: 20px;">
+      <div class="container">
+        <h2 style="text-align: center; margin-bottom: 20px;">Dashboard</h2>
+        <div class="row">
+          <!-- Card for Total Users -->
+          <div class="card">
+            <h3>Total Users</h3>
+            <p id="totalUsers">Loading...</p>
+          </div>
+    
+          <!-- Card for Total Visits -->
+          <div class="card">
+            <h3>Total Visits</h3>
+            <p id="totalVisits">Loading...</p>
+          </div>
+    
+          <!-- Card for Active Users -->
+          <div class="card">
+            <h3>Active Users Today</h3>
+            <p id="activeUsers">Loading...</p>
+          </div>
+        </div>
+    
+        <div class="row">
+          <!-- Graph for User Visits -->
+          <div class="chart-container_user">
+            <h3>User Visits Over Time</h3>
+            <canvas id="visitsChart"></canvas>
+          </div>          
+          
+          <!-- Graph for User Distribution -->
+          <div class="chart-container">
+            <h3>User Demographics</h3>
+            <canvas id="demographicsChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
 
     <!-- Features Section -->
     <section id="features" class="features section">
@@ -525,11 +613,69 @@
   <script src="{% static 'assets/vendor/imagesloaded/imagesloaded.pkgd.min.js' %}"></script>
   <script src="{% static 'assets/vendor/isotope-layout/isotope.pkgd.min.js' %}"></script>
   <script src="{% static 'assets/vendor/swiper/swiper-bundle.min.js' %}"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
   
   <!-- Main JS File -->
   <script src="{% static 'assets/js/main.js' %}"></script>
   
-
+  <script>
+    // Example data for the charts
+    const visitsData = {
+      labels: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+      datasets: [{
+        label: 'User Visits',
+        data: [120, 200, 150, 80, 250, 300, 400],
+        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+        borderColor: 'rgba(54, 162, 235, 1)',
+        borderWidth: 1
+      }]
+    };
+  
+    const demographicsData = {
+      labels: ['Male', 'Female', 'Other'],
+      datasets: [{
+        data: [55, 40, 5],
+        backgroundColor: ['#36a2eb', '#ff6384', '#ffce56']
+      }]
+    };
+  
+    // Rendering the visits chart
+    const ctx1 = document.getElementById('visitsChart').getContext('2d');
+    new Chart(ctx1, {
+      type: 'line', // 'line', 'bar', 'pie', etc.
+      data: visitsData,
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            display: true
+          }
+        }
+      }
+    });
+  
+    // Rendering the demographics chart
+    const ctx2 = document.getElementById('demographicsChart').getContext('2d');
+    new Chart(ctx2, {
+      type: 'pie',
+      data: demographicsData,
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            display: true
+          }
+        }
+      }
+    });
+  
+    // Simulated stats for total users, visits, and active users
+    document.getElementById('totalUsers').innerText = '1,245';
+    document.getElementById('totalVisits').innerText = '3,567';
+    document.getElementById('activeUsers').innerText = '245';
+  </script>
+  
 </body>
 
 </html>
