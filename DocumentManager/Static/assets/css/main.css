@@ -686,13 +686,13 @@ section,
   flex-direction: column;
   text-align: center;
   position: relative;
-  min-height: 75vh;
+  min-height: 30vh;
   padding-top: 60px;
 }
 
 .hero h2 {
   margin-bottom: 30px;
-  font-size: 48px;
+  font-size: 98px;
   font-weight: 700;
 }
 

@@ -7,7 +7,7 @@ class RegistrationForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ['username', 'password', 'first_name', 'last_name', 'email']
+        fields = ['username', 'first_name', 'last_name', 'email','password']
         widgets = {
             'username': forms.TextInput(attrs={'placeholder': 'Username', 'class': 'form-control'}),
             'first_name': forms.TextInput(attrs={'placeholder': 'First Name', 'class': 'form-control'}),
@@ -29,5 +29,7 @@ class RegistrationForm(forms.ModelForm):
 class LoginForm(forms.Form):
     username = forms.CharField()
     password = forms.CharField(widget=forms.PasswordInput())
+
+
 
 
