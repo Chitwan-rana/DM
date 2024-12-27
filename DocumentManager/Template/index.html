@@ -168,6 +168,7 @@
   width: auto; 
 }
 
+
 .chart-container-2 canvas {
   max-width: 100%; 
   max-height: 80%; 
@@ -216,6 +217,62 @@
   font-weight: 700;
 }
 
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+th, td {
+  padding: 15px;
+  text-align: center;
+  border: 1px solid #ddd;
+}
+
+th {
+  background-color: #1c4966;
+  color: white;
+}
+
+td {
+  background-color: #fff;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 20px;
+  background-color: #e0e0e0;
+  border-radius: 5px;
+  margin-top: 10px;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 5px;
+}
+
+.excellent {
+  background-color: #008ebd ;
+}
+
+.good {
+  background-color: #008ebd;
+}
+
+.poor {
+  background-color:#008ebd;
+}
+
+.rating {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.table h2 {
+  text-align: center;
+  margin-bottom: 30px;
+}
 
 @media (max-width: 768px) {
   .chart-container {
@@ -337,158 +394,81 @@
         <!-- Row for Additional Graphs -->
         <div class="row graphs-row">
           <div class="chart-container-1">
-            <h3>Age Distribution</h3>
+            <h3>Query </h3>
             <canvas id="ageHistogram"></canvas>
           </div>
           <div class="chart-container-1">
-            <h3>Visits by Region</h3>
+            <h3>Visits On PDF-Suite</h3>
             <canvas id="regionBarChart"></canvas>
           </div>
           <div class="chart-container-2">
-            <h3>Device Usage</h3>
+            <h3>Premium Users</h3>
             <canvas id="deviceChart"></canvas>
           </div>
         </div>
       </div>
 
-      
-    </section>
+      <div class="table">
+        <h2>Customer Satisfaction Review Ratings</h2>
 
-    <!-- Features Section -->
-    <section id="features" class="features section">
-
-      <div class="container">
-
-        <ul class="nav nav-tabs row  d-flex" data-aos="fade-up" data-aos-delay="100">
-          <li class="nav-item col-3">
-            <a class="nav-link active show" data-bs-toggle="tab" data-bs-target="#features-tab-1">
-              <i class="bi bi-binoculars"></i>
-              <h4 class="d-none d-lg-block">EOB Documents</h4>
-            </a>
-          </li>
-          <li class="nav-item col-3">
-            <a class="nav-link" data-bs-toggle="tab" data-bs-target="#features-tab-2">
-              <i class="bi bi-box-seam"></i>
-              <h4 class="d-none d-lg-block">Digitization</h4>
-            </a>
-          </li>
-          <li class="nav-item col-3">
-            <a class="nav-link" data-bs-toggle="tab" data-bs-target="#features-tab-3">
-              <i class="bi bi-brightness-high"></i>
-              <h4 class="d-none d-lg-block">PDF Intelligence Suite</h4>
-            </a>
-          </li>
-          <li class="nav-item col-3">
-            <a class="nav-link" data-bs-toggle="tab" data-bs-target="#features-tab-4">
-              <i class="bi bi-command"></i>
-              <h4 class="d-none d-lg-block">Analytics</h4>
-            </a>
-          </li>
-        </ul><!-- End Tab Nav -->
-
-        <div class="tab-content" data-aos="fade-up" data-aos-delay="200">
-
-          <div class="tab-pane fade active show" id="features-tab-1">
-            <div class="row">
-              <div class="col-lg-6 order-2 order-lg-1 mt-3 mt-lg-0">
-                <h3>EOB (Explanation of Benefits) is a statement issued by a health insurance company that outlines the details of healthcare services provided to a policyholder. </h3>
-                <p class="fst-italic">
-                  We provide advanced data extraction solutions for Explanation of Benefits (EOB) documents, helping healthcare providers streamline operations, optimize revenue cycle management, and identify trends in healthcare utilization.
-                </p>
-                <ul>
-                  <li><i class="bi bi-check2-all"></i>
-                    <span>Automation: Eliminates manual data entry, saving time and labor costs.</span>
-                  </li>
-                  <li><i class="bi bi-check2-all"></i> <span>Accuracy: Reduces the chance of human error in claim reconciliation and payment tracking.</span>.</li>
-                  <li><i class="bi bi-check2-all"></i> <span> Compliance: Ensures data privacy and regulatory compliance with document redaction and secure storage.</span></li>
-                </ul>
-                <p>
-                  An EOB (Explanation of Benefits) is a detailed statement issued by an insurance company to policyholders after a healthcare service has been processed. It outlines the services provided, the amount billed, the portion covered by insurance, and any remaining balance the policyholder is responsible for paying.
-                </p>
-              </div>
-              <div class="col-lg-6 order-1 order-lg-2 text-center">
-                <img src="{% static 'assets/img/working-1.jpg' %}" alt="" class="img-fluid">
-              </div>
-            </div>
-          </div><!-- End Tab Content Item -->
-
-          <div class="tab-pane fade" id="features-tab-2">
-            <div class="row">
-              <div class="col-lg-6 order-2 order-lg-1 mt-3 mt-lg-0">
-                <h3>Digitization refers to converting physical, paper-based documents (like PDFs, images, XPS files) into structured, machine-readable data using AI-driven technologies.</h3>
-                <p>
-                  By leveraging digitization, organizations can transform document-heavy processes into automated, AI-powered workflows, resulting in operational efficiency, cost savings, and faster revenue cycle management.
-                </p>
-                <p class="fst-italic">
-                  This transformation involves capturing data—like text, images, audio, or video—and representing it as digital files, such as PDFs, spreadsheets, or multimedia files.
-
-
-                </p>
-                <ul>
-                  <li><i class="bi bi-check2-all"></i> <span>Improved Accessibility: Digital data can be accessed anytime, anywhere.
-                  </span></li>
-                  <li><i class="bi bi-check2-all"></i> <span>Better Storage: Reduces physical storage needs and ensures long-term preservation.
-                  </span></li>
-                  <li><i class="bi bi-check2-all"></i> <span>Faster Processing: Speeds up workflows and data retrieval.
-                  </span></li>
-                  <li><i class="bi bi-check2-all"></i> <span>Enhanced Security: Digital formats allow encryption and controlled access.
-                  </span></li>
-                </ul>
-              </div>
-              <div class="col-lg-6 order-1 order-lg-2 text-center">
-                <img src="{% static 'assets/img/working-2.jpg' %}" alt="" class="img-fluid">
-              </div>
-            </div>
-          </div><!-- End Tab Content Item -->
-
-          <div class="tab-pane fade" id="features-tab-3">
-            <div class="row">
-              <div class="col-lg-6 order-2 order-lg-1 mt-3 mt-lg-0">
-                <h3>In today’s data-driven world, businesses and organizations constantly interact with a vast array of documents such as PDFs, images, and XPS files.</h3>
-                <br>
-                <p>
-                  PDF Intelligence Suite solutions leverage technologies like Computer Vision, Natural Language Processing (NLP), and machine learning to automate and streamline revenue cycle processes.
-                </p>
-                <ul>
-                  <li><i class="bi bi-check2-all"></i> <span>Data Extraction: Automates data extraction from documents such as patient records, insurance claims, and invoices. </span></li>
-                  <li><i class="bi bi-check2-all"></i> <span>Claim Processing: PDF Intelligence Suite GenAI solution accelerates claim generation and submission by automating coding, ensuring accurate billing codes, and flagging potential issues before submission.</span></li>
-                  <li><i class="bi bi-check2-all"></i> <span>Denial Management: Uses data analytics to identify reasons for claim denials, enabling healthcare providers to resolve issues and resubmit claims in a timely manner.</span></li>
-                </ul>
-                <p class="fst-italic">
-                    
-                </p>
-              </div>
-              <div class="col-lg-6 order-1 order-lg-2 text-center">
-                <img src="{% static 'assets/img/working-3.jpg' %}" alt="" class="img-fluid">
-              </div>
-            </div>
-          </div><!-- End Tab Content Item -->
-
-          <div class="tab-pane fade" id="features-tab-4">
-            <div class="row">
-              <div class="col-lg-6 order-2 order-lg-1 mt-3 mt-lg-0">
-                <h3>It focuses on how data extracted and processed from various documents, such as medical records and insurance claims used to generate insights, reports, and visualizations.</h3>
-                <p>
-                  Analytics involves a multi-step process, beginning with data extraction, followed by enrichment through NLP and machine learning models. This data is then used for real-time analytics, generating visualizations and reports, and supporting decision-making to optimize revenue cycle processes in industries like healthcare.
-                </p>
-                <p class="fst-italic">
-                  
-                </p>
-                <ul>
-                  <li><i class="bi bi-check2-all"></i> <span>Improved Decision-Making: Provides data-driven insights that enable informed decision-making.</span></li>
-                  <li><i class="bi bi-check2-all"></i> <span>Real-Time Insights: Enables real-time tracking and analysis, allowing quick responses to emerging issues.</span></li>
-                  <li><i class="bi bi-check2-all"></i> <span>Operational Optimization: Streamlines workflows, improving efficiency and reducing manual effort.</span></li>
-                </ul>
-              </div>
-              <div class="col-lg-6 order-1 order-lg-2 text-center">
-                <img src="{% static 'assets/img/working-4.jpg' %}" alt="" class="img-fluid">
-              </div>
-            </div>
-          </div><!-- End Tab Content Item -->
-
+<table>
+  <thead>
+    <tr>
+      <th>Service</th>
+      <th>Rating</th>
+      <th>Feedback</th>
+      <th>Satisfaction Level</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>EOB</td>
+      <td><span class="rating">4.8</span>/5</td>
+      <td>Excellent service, very satisfied!</td>
+      <td>
+        <div class="progress-bar">
+          <div class="progress-bar-fill excellent" style="width: 96%"></div>
         </div>
+      </td>
+    </tr>
+    <tr>
+      <td>Digitization</td>
+      <td><span class="rating">4.5</span>/5</td>
+      <td>Good service but could improve.</td>
+      <td>
+        <div class="progress-bar">
+          <div class="progress-bar-fill good" style="width: 89%"></div>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td>PDF Suite</td>
+      <td><span class="rating">4.1</span>/5</td>
+      <td>Extremely Satisfied.</td>
+      <td>
+        <div class="progress-bar">
+          <div class="progress-bar-fill poor" style="width: 81%"></div>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td>Analytics</td>
+      <td><span class="rating">4.2</span>/5</td>
+      <td>Good overall experience.</td>
+      <td>
+        <div class="progress-bar">
+          <div class="progress-bar-fill excellent" style="width: 86%"></div>
+        </div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+
 
       </div>
+    </section>
+
 
     </section><!-- /Features Section -->
 
@@ -702,7 +682,7 @@
   <script>
 
     const visitsData = {
-      labels: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+      labels:  ['January', 'March', 'May', 'July', 'September', 'November'],
       datasets: [{
         label: 'Processed',
         data: [120, 200, 150, 80, 250, 300, 400],
@@ -713,17 +693,17 @@
     };
   
     const demographicsData = {
-      labels: ['A', 'B', 'C','D','E'],
+      labels: ['EOB', 'Digitization', 'PDF Suite','Analytics','Visualization'],
       datasets: [{
         data: [25, 30, 15 , 10 , 20],
         backgroundColor: ['#03045E', '#023E8A', '#0096C7','#90E0EF','#CAF0F8']
       }]
     };
   
-    const ageData = {
-      labels: ['18-25', '26-35', '36-45', '46-55', '56+'],
+    const QueryData = {
+      labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4','Week 5'],
       datasets: [{
-        label: 'Age Groups',
+        label: 'Query Resolved ',
         data: [300, 450, 200, 150, 100],
         backgroundColor: 'rgba(75, 192, 192, 0.2)',
         borderColor: 'rgba(75, 192, 192, 1)',
@@ -731,17 +711,17 @@
       }]
     };
   
-    const regionData = {
-      labels: ['North', 'South', 'East', 'West'],
+    const UserData = {
+      labels: ['Extraction', 'Summarization', 'PDF Conversion ', 'Visualization'],
       datasets: [{
-        label: 'Visits by Region',
+        label: 'Features Used by Users',
         data: [500, 300, 400, 350],
         backgroundColor: ['#104486', '#0044FF','#008DD8',  '#55AAFF']
       }]
     };
   
     const deviceData = {
-      labels: ['Desktop', 'Mobile', 'Tablet'],
+      labels: ['Gold', 'Silver', 'Diamond '],
       datasets: [{
         data: [60, 30, 10],
         backgroundColor: ['#1C4966', '#296D98', '#ADE8F4']
@@ -751,8 +731,8 @@
     // Render Charts
     new Chart(document.getElementById('visitsChart').getContext('2d'), { type: 'line', data: visitsData });
     new Chart(document.getElementById('demographicsChart').getContext('2d'), { type: 'pie', data: demographicsData });
-    new Chart(document.getElementById('ageHistogram').getContext('2d'), { type: 'bar', data: ageData });
-    new Chart(document.getElementById('regionBarChart').getContext('2d'), { type: 'bar', data: regionData });
+    new Chart(document.getElementById('ageHistogram').getContext('2d'), { type: 'bar', data: QueryData });
+    new Chart(document.getElementById('regionBarChart').getContext('2d'), { type: 'bar', data: UserData });
     new Chart(document.getElementById('deviceChart').getContext('2d'), { type: 'doughnut', data: deviceData });
   
     // Update Stats
@@ -760,6 +740,39 @@
     document.getElementById('totalVisits').innerText = '3,567';
     document.getElementById('activeUsers').innerText = '245';
   </script>
+
+
+  <script>
+    // Chart.js example for satisfaction distribution
+    const ctx = document.getElementById('satisfactionChart').getContext('2d');
+    const satisfactionChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['Excellent', 'Good', 'Average', 'Poor'],
+        datasets: [{
+          label: 'Satisfaction Levels',
+          data: [60, 20, 10, 10], // Percentage of customers in each category
+          backgroundColor: ['#28a745', '#ffc107', '#17a2b8', '#dc3545'],
+          borderColor: ['#28a745', '#ffc107', '#17a2b8', '#dc3545'],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          x: {
+            beginAtZero: true
+          },
+          y: {
+            beginAtZero: true,
+            max: 100
+          }
+        }
+      }
+    });
+  </script>
+  
+  
 </body>
 
 </html>
