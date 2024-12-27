@@ -85,52 +85,122 @@
 }
 
 
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-  .row {
-    display: flex;
-    flex-wrap: wrap;
-    margin-bottom: 20px;
+ /* General Styling */
+#dashboard {
+  padding: 20px;
+}
+
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: auto;
+}
+
+.dashboard-title {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 2em;
+}
+
+/* Row Styling */
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  margin-bottom: 30px;
+}
+
+.stats-row {
+  margin-bottom: 30px;
+}
+
+.graphs-row {
+  margin-top: 30px;
+}
+
+
+.card {
+  flex: 1;
+  margin: 10px;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  background: #f9f9f9;
+}
+
+
+.chart-container {
+  flex: 1;
+  margin: 10px;
+  max-width: 45%;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  height: 400px;
+}
+
+
+.chart-container-0 {
+  flex: 1;
+  margin: 10px;
+  max-width: 45%;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  height: 400px; 
+  display: flex;
+  flex-direction: column;
+  align-items: center; 
+  justify-content: center; 
+  overflow: hidden; 
+}
+
+.chart-container-0 canvas {
+  max-width: 100%; 
+  max-height: 90%; 
+  height: auto; 
+  width: auto; 
+}
+
+.chart-container-1 {
+  flex: 1;
+  margin: 10px;
+  max-width: 45%;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  height:300px;
+}
+
+.chart-container-2 {
+  flex: 1;
+  margin: 10px;
+  max-width: 45%;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  height:430px;
+}
+
+
+@media (max-width: 768px) {
+  .chart-container {
+    max-width: 100%;
   }
   .card {
-    flex: 1;
-    margin: 10px;
-    padding: 20px;
-    text-align: center;
-    background-color: #f9f9f9;
-    border: 1px solid #ddd;
-    border-radius: 10px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    max-width: 100%;
   }
-  .chart-container {
-    flex: 1;
-    margin: 10px;
-    padding: 20px;
-    background-color: #fff;
-    border-radius: 10px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-  .chart-container_user {
-    flex: 1;
-    margin: 10px;
-    padding: 20px;
-    background-color: #fff;
-    border-radius: 10px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    max-width: 600px; 
-    width: 100%; 
-    height: 340px; 
-    box-sizing: border-box; 
-  }
-
-  canvas {
-    width: 100% !important;
-    height: auto !important;
-  }
-
-
+}
 
 </style>
 </head>
@@ -236,45 +306,57 @@
     </section><!-- /Hero Section -->
 
 
-    <section id="dashboard" style="padding: 20px;">
+    <section id="dashboard">
       <div class="container">
-        <h2 style="text-align: center; margin-bottom: 20px;">Dashboard</h2>
-        <div class="row">
-          <!-- Card for Total Users -->
+        <h2 class="dashboard-title">Dashboard</h2>
+    
+        <!-- Row for Statistics -->
+        <div class="row stats-row">
           <div class="card">
             <h3>Total Users</h3>
             <p id="totalUsers">Loading...</p>
           </div>
-    
-          <!-- Card for Total Visits -->
           <div class="card">
             <h3>Total Visits</h3>
             <p id="totalVisits">Loading...</p>
           </div>
-    
-          <!-- Card for Active Users -->
           <div class="card">
             <h3>Active Users Today</h3>
             <p id="activeUsers">Loading...</p>
           </div>
         </div>
     
-        <div class="row">
-          <!-- Graph for User Visits -->
-          <div class="chart-container_user">
+        <!-- Row for Graphs -->
+        <div class="row graphs-row">
+          <div class="chart-container">
             <h3>User Visits Over Time</h3>
             <canvas id="visitsChart"></canvas>
-          </div>          
-          
-          <!-- Graph for User Distribution -->
-          <div class="chart-container">
-            <h3>User Demographics</h3>
-            <canvas id="demographicsChart"></canvas>
+          </div>
+            <div class="chart-container-0">
+              <h3>User Demographics</h3>
+              <canvas id="demographicsChart"></canvas>
+            </div>
+          </div>
+    
+        <!-- Row for Additional Graphs -->
+        <div class="row graphs-row">
+          <div class="chart-container-1">
+            <h3>Age Distribution</h3>
+            <canvas id="ageHistogram"></canvas>
+          </div>
+          <div class="chart-container-1">
+            <h3>Visits by Region</h3>
+            <canvas id="regionBarChart"></canvas>
+          </div>
+          <div class="chart-container-2">
+            <h3>Device Usage</h3>
+            <canvas id="deviceChart"></canvas>
           </div>
         </div>
       </div>
-    </section>
 
+      
+    </section>
 
     <!-- Features Section -->
     <section id="features" class="features section">
@@ -614,13 +696,15 @@
   <script src="{% static 'assets/vendor/isotope-layout/isotope.pkgd.min.js' %}"></script>
   <script src="{% static 'assets/vendor/swiper/swiper-bundle.min.js' %}"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="{% static 'assets/css/dashboard.css' %}">
+
 
   
   <!-- Main JS File -->
   <script src="{% static 'assets/js/main.js' %}"></script>
   
   <script>
-    // Example data for the charts
+
     const visitsData = {
       labels: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
       datasets: [{
@@ -640,42 +724,46 @@
       }]
     };
   
-    // Rendering the visits chart
-    const ctx1 = document.getElementById('visitsChart').getContext('2d');
-    new Chart(ctx1, {
-      type: 'line', // 'line', 'bar', 'pie', etc.
-      data: visitsData,
-      options: {
-        responsive: true,
-        plugins: {
-          legend: {
-            display: true
-          }
-        }
-      }
-    });
+    const ageData = {
+      labels: ['18-25', '26-35', '36-45', '46-55', '56+'],
+      datasets: [{
+        label: 'Age Groups',
+        data: [300, 450, 200, 150, 100],
+        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+        borderColor: 'rgba(75, 192, 192, 1)',
+        borderWidth: 1
+      }]
+    };
   
-    // Rendering the demographics chart
-    const ctx2 = document.getElementById('demographicsChart').getContext('2d');
-    new Chart(ctx2, {
-      type: 'pie',
-      data: demographicsData,
-      options: {
-        responsive: true,
-        plugins: {
-          legend: {
-            display: true
-          }
-        }
-      }
-    });
+    const regionData = {
+      labels: ['North', 'South', 'East', 'West'],
+      datasets: [{
+        label: 'Visits by Region',
+        data: [500, 300, 400, 350],
+        backgroundColor: ['#ff6384', '#36a2eb', '#ffce56', '#4bc0c0']
+      }]
+    };
   
-    // Simulated stats for total users, visits, and active users
+    const deviceData = {
+      labels: ['Desktop', 'Mobile', 'Tablet'],
+      datasets: [{
+        data: [60, 30, 10],
+        backgroundColor: ['#ff9f40', '#36a2eb', '#ff6384']
+      }]
+    };
+  
+    // Render Charts
+    new Chart(document.getElementById('visitsChart').getContext('2d'), { type: 'line', data: visitsData });
+    new Chart(document.getElementById('demographicsChart').getContext('2d'), { type: 'pie', data: demographicsData });
+    new Chart(document.getElementById('ageHistogram').getContext('2d'), { type: 'bar', data: ageData });
+    new Chart(document.getElementById('regionBarChart').getContext('2d'), { type: 'bar', data: regionData });
+    new Chart(document.getElementById('deviceChart').getContext('2d'), { type: 'doughnut', data: deviceData });
+  
+    // Update Stats
     document.getElementById('totalUsers').innerText = '1,245';
     document.getElementById('totalVisits').innerText = '3,567';
     document.getElementById('activeUsers').innerText = '245';
   </script>
-  
 </body>
 
 </html>
