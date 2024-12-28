@@ -7,11 +7,11 @@
     color: white;
     position: absolute;
     top: 50%;
-    left: 50%; /* Center horizontally relative to the container */
-    transform: translate(-50%, -50%); /* Center both vertically and horizontally */
+    left: 50%; 
+    transform: translate(-50%, -50%);
     margin: 0;
     font-size: 1rem;
-    transition: left 0.3s ease, transform 0.3s ease; /* Smooth transition for h5 movement */
+    transition: left 0.3s ease, transform 0.3s ease; 
 }
 
 .dropzone {
@@ -22,17 +22,17 @@
     align-items: center;
     justify-content: center;
     position: relative;
-    transition: padding-left 0.3s ease; /* Smooth transition for padding */
-    padding-left: 0; /* Initially no left padding */
+    transition: padding-left 0.3s ease; 
+    padding-left: 0; 
 }
 
 .dropzone.has-cards {
-    padding-left: 100px; /* Shift content left when cards are added */
+    padding-left: 100px; 
 }
 
 .dropzone.has-cards h5 {
-    left: 20px; /* Move h5 to the left */
-    transform: translateY(-50%) translateX(0); /* Remove horizontal centering */
+    left: 20px; 
+    transform: translateY(-50%) translateX(0); 
 }
 
 .dropped-cards-container {
@@ -41,7 +41,7 @@
     justify-content: center;
     align-items: center;
     flex-wrap: wrap;
-    transition: all 0.3s ease; /* Smooth transitions for added cards */
+    transition: all 0.3s ease; 
 }
 
 .dropped-card {
@@ -55,12 +55,12 @@
     border: 1px solid #ddd;
     opacity: 0;
     transform: scale(0.8);
-    transition: opacity 0.3s ease, transform 0.3s ease; /* Smooth appearance and scaling */
+    transition: opacity 0.3s ease, transform 0.3s ease; 
 }
 
 .dropped-card.visible {
     opacity: 1;
-    transform: scale(1); /* Scale up to full size */
+    transform: scale(1); 
 }
 
 /* SVG Dustbin */
@@ -85,10 +85,10 @@
     display: block;
     padding: 12px;
     text-align: center;
-    background-color: #ef6603; /* Orange color */
+    background-color: #ef6603; 
     color: white;
     border: none;
-    border-radius: 5px;
+    border-radius: 15px;
     font-size: 1.2rem;
     margin-top: 20px;
     margin-left:45%;
@@ -104,17 +104,16 @@
 </head>
 <main class="main">
 
-  <!-- About Section -->
+ 
   <section id="about" class="about section">
 
-    <!-- Section Title -->
+
     <div class="container section-title" data-aos="fade-up">
       <h2>Draggable</h2>
       <p>Drag items </p>
-    </div><!-- End Section Title -->
+    </div>
 
     <div class="container">
-        <!-- Draggable Cards -->
     <div class="container my-5">
       <div class="row justify-content-center">
           <div class="col-md-2 col-sm-4 col-6 mb-4">
@@ -165,12 +164,10 @@
         </div>
       </div>
 
-    <!-- Bar Div (Drop Zone) -->
     <div class="container-fluid py-3 text-white dropzone" ondrop="drop(event)" ondragover="allowDrop(event)">
       <h5>Drag cards here: </h5>
       <div class="dropped-cards-container"></div>
 
-      <!-- SVG Dustbin -->
       <div class="dustbin" ondrop="deleteAllCards(event)" ondragover="allowDrop(event)">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M3 6h18M9 6v12M15 6v12M3 6h18"></path>
@@ -180,7 +177,7 @@
       </div>
     </div>
 
-    <!-- Proceed Button -->
+
     <button class="proceed-button">Proceed</button>
 
     <script>
@@ -200,59 +197,51 @@
        const cardId = event.dataTransfer.getData("text");
        const card = document.getElementById(cardId);
    
-       // Check if the card is already added
+
        if (addedCardIds.includes(cardId)) {
          alert("This card has already been added!");
          return;
        }
    
-       // Mark card as added
        addedCardIds.push(cardId);
-   
-       // Extract only the title content
+
        const cardTitle = card.querySelector('.card-title').textContent;
    
-       // Create a new div for the dropped card
        const droppedCard = document.createElement('div');
        droppedCard.className = 'dropped-card';
        droppedCard.textContent = cardTitle;
-       droppedCard.setAttribute("id", cardId); // Set the same ID for easy deletion
-       droppedCard.setAttribute("draggable", "true"); // Make the card draggable in drop zone
-       droppedCard.ondragstart = function(event) { drag(event) }; // Attach drag event to dropped cards
+       droppedCard.setAttribute("id", cardId); 
+       droppedCard.setAttribute("draggable", "true"); 
+       droppedCard.ondragstart = function(event) { drag(event) }; 
    
-       // Append the dropped card to the container in the dropzone
+
        const container = document.querySelector('.dropped-cards-container');
        container.appendChild(droppedCard);
    
-       // Add the "visible" class to trigger the transition
        setTimeout(() => {
          droppedCard.classList.add('visible');
        }, 10);
    
-       // Add the "has-cards" class to the dropzone for h5 movement
+
        const dropzone = document.querySelector('.dropzone');
        dropzone.classList.add('has-cards');
      }
    
-     // Delete all cards if dropped on dustbin
      function deleteAllCards(event) {
-       event.preventDefault(); // Prevent the default behavior
-       event.stopPropagation(); // Prevent event propagation
+       event.preventDefault(); 
+       event.stopPropagation();
    
-       // Clear the dropped cards container
        const container = document.querySelector('.dropped-cards-container');
-       container.innerHTML = ''; // Clear all cards in the drop zone
-       addedCardIds = []; // Reset the addedCardIds array
+       container.innerHTML = ''; 
+       addedCardIds = []; 
    
-       // Remove the "has-cards" class from the dropzone
        const dropzone = document.querySelector('.dropzone');
        dropzone.classList.remove('has-cards');
      }
    
-     // Add event listener to handle the dustbin click event
      const dustbin = document.querySelector('.dustbin');
      dustbin.addEventListener('drop', deleteAllCards);
-     dustbin.addEventListener('dragover', allowDrop); // Allow dropping on the dustbin
+     dustbin.addEventListener('dragover', allowDrop); 
    </script>
    
   </section>
