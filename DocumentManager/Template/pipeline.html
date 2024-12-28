@@ -175,6 +175,13 @@
       <p>Drag items </p>
     </div>
 
+
+    <div class="container mb-4">
+      <label for="pipelineName" style="color: white;">Pipeline Name:</label>
+      <input type="text" id="pipelineName" placeholder="Enter pipeline name" style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ef6603;  ">
+    </div>
+
+
     <div class="container">
       <div class="container my-5">
         <div class="row justify-content-center">
@@ -251,70 +258,139 @@
     </div>
 
 
-    <button class="proceed-button">Proceed</button>
+    <button class="proceed-button" onclick="createPipeline()">Create Pipeline</button>
+
+
+        <!-- Popup structure -->
+        <div id="pipelinePopup" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; padding: 20px; border-radius: 10px; z-index: 1000; box-shadow: 0px 0px 10px rgba(0,0,0,0.5);">
+          <h3>Pipeline Details</h3>
+          <p id="popupPipelineName" style="font-weight: bold;"></p>
+          <ul id="popupFeaturesList"></ul>
+          <button onclick="closePopup()" style="margin-top: 10px; padding: 10px; background-color: #ef6603; color: white; border: none; border-radius: 5px;">Close</button>
+        </div>
 
     <script>
-     let addedCardIds = [];
-   
-     function allowDrop(event) {
-       event.preventDefault();
-     }
-   
-     function drag(event) {
-       event.dataTransfer.setData("text", event.target.id);
-     }
-   
-     function drop(event) {
-       event.preventDefault();
-   
-       const cardId = event.dataTransfer.getData("text");
-       const card = document.getElementById(cardId);
-   
+      let addedCardIds = [];
 
-       if (addedCardIds.includes(cardId)) {
-         alert("This card has already been added!");
-         return;
-       }
-   
-       addedCardIds.push(cardId);
-
-       const cardTitle = card.querySelector('.card-title').textContent;
-   
-       const droppedCard = document.createElement('div');
-       droppedCard.className = 'dropped-card';
-       droppedCard.textContent = cardTitle;
-       droppedCard.setAttribute("id", cardId); 
-       droppedCard.setAttribute("draggable", "true"); 
-       droppedCard.ondragstart = function(event) { drag(event) }; 
-   
-
-       const container = document.querySelector('.dropped-cards-container');
-       container.appendChild(droppedCard);
-   
-       setTimeout(() => {
-         droppedCard.classList.add('visible');
-       }, 10);
-   
-
-       const dropzone = document.querySelector('.dropzone');
-       dropzone.classList.add('has-cards');
-     }
-   
-     function deleteAllCards(event) {
-       event.preventDefault(); 
-       event.stopPropagation();
-   
-       const container = document.querySelector('.dropped-cards-container');
-       container.innerHTML = ''; 
-       addedCardIds = []; 
-   
-       const dropzone = document.querySelector('.dropzone');
-       dropzone.classList.remove('has-cards');
-     }
-   
-     const dustbin = document.querySelector('.dustbin');
-     dustbin.addEventListener('drop', deleteAllCards);
-     dustbin.addEventListener('dragover', allowDrop); 
+      // Allow dragging over a drop zone
+      function allowDrop(event) {
+        event.preventDefault();
+      }
+      
+      // Start dragging a card
+      function drag(event) {
+        event.dataTransfer.setData("text", event.target.id);
+      }
+      
+      // Drop a card into the drop zone
+      function drop(event) {
+        event.preventDefault();
+      
+        const cardId = event.dataTransfer.getData("text");
+        const card = document.getElementById(cardId);
+      
+        // Check if the card is already added
+        if (addedCardIds.includes(cardId)) {
+          alert("This card has already been added!");
+          return;
+        }
+      
+        addedCardIds.push(cardId);
+      
+        // Create a dropped card element
+        const cardTitle = card.querySelector('.card-title').textContent;
+      
+        const droppedCard = document.createElement('div');
+        droppedCard.className = 'dropped-card';
+        droppedCard.textContent = cardTitle;
+        droppedCard.setAttribute("id", cardId);
+        droppedCard.setAttribute("draggable", "true");
+        droppedCard.ondragstart = function(event) { drag(event) };
+      
+        const container = document.querySelector('.dropped-cards-container');
+        container.appendChild(droppedCard);
+      
+        setTimeout(() => {
+          droppedCard.classList.add('visible');
+        }, 10);
+      
+        // Update drop zone appearance
+        const dropzone = document.querySelector('.dropzone');
+        dropzone.classList.add('has-cards');
+      }
+      
+      // Delete all cards from the drop zone
+      function deleteAllCards(event) {
+        event.preventDefault();
+        event.stopPropagation();
+      
+        const container = document.querySelector('.dropped-cards-container');
+        container.innerHTML = '';
+        addedCardIds = [];
+      
+        const dropzone = document.querySelector('.dropzone');
+        dropzone.classList.remove('has-cards');
+      }
+      
+      // Create a pipeline popup
+      function createPipeline() {
+        const pipelineName = document.getElementById("pipelineName").value.trim();
+        const container = document.querySelector('.dropped-cards-container');
+        const features = container.querySelectorAll('.dropped-card');
+      
+        if (!pipelineName) {
+          alert("Please enter a pipeline name!");
+          return;
+        }
+      
+        if (features.length === 0) {
+          alert("Please drag at least one feature into the pipeline!");
+          return;
+        }
+      
+        const featureList = Array.from(features).map(feature => feature.textContent);
+      
+        // Create and display a popup with pipeline details
+        const popupContent = `
+          <div style="padding: 20px; background-color: #fff; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.5); width: 300px; margin: 50px auto;">
+            <h3 style="margin-bottom: 20px;">Pipeline Created</h3>
+            <p><strong>Pipeline Name:</strong> ${pipelineName}</p>
+            <p><strong>Features:</strong></p>
+            <ul style="list-style-type: none; padding: 0;">
+              ${featureList.map(feature => `<li>${feature}</li>`).join('')}
+            </ul>
+            <button onclick="closePopup()" style="margin-top: 20px; padding: 10px 20px; background-color: #ef6603; color: white; border: none; border-radius: 5px; cursor: pointer;">Close</button>
+          </div>
+        `;
+      
+        const popup = document.createElement('div');
+        popup.id = "popup";
+        popup.style.position = "fixed";
+        popup.style.top = "0";
+        popup.style.left = "0";
+        popup.style.width = "100vw";
+        popup.style.height = "100vh";
+        popup.style.backgroundColor = "rgba(0, 0, 0, 0.7)";
+        popup.style.display = "flex";
+        popup.style.justifyContent = "center";
+        popup.style.alignItems = "center";
+        popup.innerHTML = popupContent;
+      
+        document.body.appendChild(popup);
+      }
+      
+      // Close the popup window
+      function closePopup() {
+        const popup = document.getElementById("popup");
+        if (popup) {
+          popup.remove();
+        }
+      }
+      
+      const dustbin = document.querySelector('.dustbin');
+      dustbin.addEventListener('drop', deleteAllCards);
+      dustbin.addEventListener('dragover', allowDrop);
+      
    </script>
    
   </section>
