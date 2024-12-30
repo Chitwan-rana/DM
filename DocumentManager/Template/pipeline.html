@@ -261,7 +261,7 @@
     <button class="proceed-button" onclick="createPipeline()">Create Pipeline</button>
 
 
-        <!-- Popup structure -->
+        
         <div id="pipelinePopup" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; padding: 20px; border-radius: 10px; z-index: 1000; box-shadow: 0px 0px 10px rgba(0,0,0,0.5);">
           <h3>Pipeline Details</h3>
           <p id="popupPipelineName" style="font-weight: bold;"></p>
@@ -272,24 +272,24 @@
     <script>
       let addedCardIds = [];
 
-      // Allow dragging over a drop zone
+      
       function allowDrop(event) {
         event.preventDefault();
       }
       
-      // Start dragging a card
+
       function drag(event) {
         event.dataTransfer.setData("text", event.target.id);
       }
       
-      // Drop a card into the drop zone
+
       function drop(event) {
         event.preventDefault();
       
         const cardId = event.dataTransfer.getData("text");
         const card = document.getElementById(cardId);
       
-        // Check if the card is already added
+
         if (addedCardIds.includes(cardId)) {
           alert("This card has already been added!");
           return;
@@ -297,7 +297,7 @@
       
         addedCardIds.push(cardId);
       
-        // Create a dropped card element
+
         const cardTitle = card.querySelector('.card-title').textContent;
       
         const droppedCard = document.createElement('div');
@@ -314,12 +314,12 @@
           droppedCard.classList.add('visible');
         }, 10);
       
-        // Update drop zone appearance
+
         const dropzone = document.querySelector('.dropzone');
         dropzone.classList.add('has-cards');
       }
       
-      // Delete all cards from the drop zone
+
       function deleteAllCards(event) {
         event.preventDefault();
         event.stopPropagation();
@@ -332,7 +332,7 @@
         dropzone.classList.remove('has-cards');
       }
       
-      // Create a pipeline popup
+
       function createPipeline() {
         const pipelineName = document.getElementById("pipelineName").value.trim();
         const container = document.querySelector('.dropped-cards-container');
@@ -350,7 +350,7 @@
       
         const featureList = Array.from(features).map(feature => feature.textContent);
       
-        // Create and display a popup with pipeline details
+        
         const popupContent = `
           <div style="padding: 20px; background-color: #fff; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.5); width: 300px; margin: 50px auto;">
             <h3 style="margin-bottom: 20px;">Pipeline Created</h3>
@@ -378,8 +378,7 @@
       
         document.body.appendChild(popup);
       }
-      
-      // Close the popup window
+
       function closePopup() {
         const popup = document.getElementById("popup");
         if (popup) {
