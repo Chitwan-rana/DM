@@ -281,242 +281,253 @@
 <script>
   let addedCardIds = [];
 
-// Function to allow dragging
-function allowDrop(event) {
-  event.preventDefault();
-}
-
-// Function to drag element
-function drag(event) {
-  event.dataTransfer.setData("text", event.target.id);
-}
-
-// Function to handle drop
-function drop(event) {
-  event.preventDefault();
-  const cardId = event.dataTransfer.getData("text");
-  const card = document.getElementById(cardId);
-
-  if (addedCardIds.includes(cardId)) {
-    alert("This card has already been added!");
-    return;
+  // Function to allow dragging
+  function allowDrop(event) {
+    event.preventDefault();
   }
-
-  addedCardIds.push(cardId);
-  const cardTitle = card.querySelector('.card-title').textContent;
-  const droppedCard = document.createElement('div');
-  droppedCard.className = 'dropped-card';
-  droppedCard.textContent = cardTitle;
-  droppedCard.setAttribute("id", cardId);
-  droppedCard.setAttribute("draggable", "true");
-  droppedCard.ondragstart = function(event) { drag(event) };
-
-  const container = document.querySelector('.dropped-cards-container');
-  container.appendChild(droppedCard);
-
-  setTimeout(() => {
-    droppedCard.classList.add('visible');
-  }, 10);
-
-  const dropzone = document.querySelector('.dropzone');
-  dropzone.classList.add('has-cards');
-}
-
-// Function to delete all cards
-function deleteAllCards(event) {
-  event.preventDefault();
-  event.stopPropagation();
-  const container = document.querySelector('.dropped-cards-container');
-  container.innerHTML = '';
-  addedCardIds = [];
-
-  const dropzone = document.querySelector('.dropzone');
-  dropzone.classList.remove('has-cards');
-}
-
-// Function to create a pipeline
-function createPipeline() {
-  const pipelineName = document.getElementById("pipelineName").value.trim();
-  const container = document.querySelector('.dropped-cards-container');
-  const features = container.querySelectorAll('.dropped-card');
-
-  if (!pipelineName) {
-    alert("Please enter a pipeline name!");
-    return;
+  
+  // Function to drag element
+  function drag(event) {
+    event.dataTransfer.setData("text", event.target.id);
   }
-
-  if (features.length === 0) {
-    alert("Please drag at least one feature into the pipeline!");
-    return;
+  
+  // Function to handle drop
+  function drop(event) {
+    event.preventDefault();
+    const cardId = event.dataTransfer.getData("text");
+    const card = document.getElementById(cardId);
+  
+    if (addedCardIds.includes(cardId)) {
+      alert("This card has already been added!");
+      return;
+    }
+  
+    addedCardIds.push(cardId);
+    const cardTitle = card.querySelector('.card-title').textContent;
+    const droppedCard = document.createElement('div');
+    droppedCard.className = 'dropped-card';
+    droppedCard.textContent = cardTitle;
+    droppedCard.setAttribute("id", cardId);
+    droppedCard.setAttribute("draggable", "true");
+    droppedCard.ondragstart = function(event) { drag(event) };
+  
+    const container = document.querySelector('.dropped-cards-container');
+    container.appendChild(droppedCard);
+  
+    setTimeout(() => {
+      droppedCard.classList.add('visible');
+    }, 10);
+  
+    const dropzone = document.querySelector('.dropzone');
+    dropzone.classList.add('has-cards');
   }
-
-  const featureList = Array.from(features).map(feature => feature.textContent);
-
-  // Create the popup content
-  const popupContent = `
-    <div style="padding: 20px; background-color: #fff; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.5); width: 300px; margin: 50px auto;">
-      <h3 style="margin-bottom: 20px;">Pipeline Created</h3>
-      <p><strong>Pipeline Name:</strong> ${pipelineName}</p>
-      <p><strong>Features:</strong></p>
-      <ul style="list-style-type: none; padding: 0;">
-        ${featureList.map(feature => `<li>${feature}</li>`).join('')}
-      </ul>
-      <button onclick="closePopup()" style="margin-top: 20px; padding: 10px 20px; background-color: #ef6603; color: white; border: none; border-radius: 5px; cursor: pointer;">Close</button>
-    </div>
-  `;
-
-  const popup = document.createElement('div');
-  popup.id = "popup";
-  popup.style.position = "fixed";
-  popup.style.top = "0";
-  popup.style.left = "0";
-  popup.style.width = "100vw";
-  popup.style.height = "100vh";
-  popup.style.backgroundColor = "rgba(0, 0, 0, 0.7)";
-  popup.style.display = "flex";
-  popup.style.justifyContent = "center";
-  popup.style.alignItems = "center";
-  popup.innerHTML = popupContent;
-
-  document.body.appendChild(popup);
-
-  // Create a small div with a 3-second timer
-  const timerDiv = document.createElement('div');
-  timerDiv.style.position = 'fixed';
-  timerDiv.style.top = '80%';
-  timerDiv.style.right = '10px';
-  timerDiv.style.padding = '10px 20px';
-  timerDiv.style.backgroundColor = '#f44336';
-  timerDiv.style.color = 'white';
-  timerDiv.style.borderRadius = '5px';
-  timerDiv.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.3)';
-  timerDiv.textContent = 'This message will close in 3 seconds...';
-
-  document.body.appendChild(timerDiv);
-
-  // Set a timer to remove the small div after 3 seconds
-  setTimeout(() => {
-    timerDiv.remove();
-  }, 3000);
-
-  // Show the grid with the pipeline name
-  const pipelinesGrid = document.getElementById("pipelinesGrid");
-  pipelinesGrid.style.display = "grid"; // Display the grid
-
-  // Add fade-in effect
-  setTimeout(() => {
-    pipelinesGrid.style.opacity = 1;
-  }, 10);
-
-  const pipelineItem = document.createElement("div");
-  pipelineItem.className = "pipeline-item";
-  pipelineItem.style.padding = "10px";
-  pipelineItem.style.border = "1px solid #ccc";
-  pipelineItem.style.borderRadius = "5px";
-  pipelineItem.style.textAlign = "center";
-  pipelineItem.style.backgroundColor = "#f0f0f0";
-  pipelineItem.textContent = pipelineName;
-
-  // Add click event to show pipeline details
-  pipelineItem.onclick = function() {
-    showPipelineDetails(pipelineName, featureList);
-  };
-
-  // Add buttons
-  const buttonContainer = document.createElement("div");
-  buttonContainer.className = "button-container";
-  buttonContainer.innerHTML = `
-    <button class="btn btn-warning btn-sm m-2" onclick="renamePipeline(this, '${pipelineName}')">Rename</button>
-    <button class="btn btn-primary btn-sm" onclick="retrainPipeline('${pipelineName}')">Retrain</button>
-    <button class="btn btn-danger btn-sm" onclick="deletePipeline(this, '${pipelineName}')">Delete</button>
-  `;
-  pipelineItem.appendChild(buttonContainer);
-
-  // Append the new pipeline item to the grid
-  pipelinesGrid.appendChild(pipelineItem);
-
-  // Refresh the dropped cards container
-  deleteAllCards();
-
-  // Auto-close the popup after 3 seconds
-  setTimeout(() => {
-    closePopup();
-  }, 3000);
-}
-
-// Function to show pipeline details
-function showPipelineDetails(pipelineName, featureList) {
-  const popupContent = `
-    <div style="padding: 20px; background-color: #fff; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.5); width: 300px; margin: 50px auto;">
-      <h3 style="margin-bottom: 20px;">Pipeline Details</h3>
-      <p><strong>Pipeline Name:</strong> ${pipelineName}</p>
-      <p><strong>Features:</strong></p>
-      <ul style="list-style-type: none; padding: 0;">
-        ${featureList.map(feature => `<li>${feature}</li>`).join('')}
-      </ul>
-      <button onclick="closePopup()" style="margin-top: 20px; padding: 10px 20px; background-color: #ef6603; color: white; border: none; border-radius: 5px; cursor: pointer;">Close</button>
-    </div>
-  `;
-
-  const popup = document.createElement('div');
-  popup.id = "popup";
-  popup.style.position = "fixed";
-  popup.style.top = "0";
-  popup.style.left = "0";
-  popup.style.width = "100vw";
-  popup.style.height = "100vh";
-  popup.style.backgroundColor = "rgba(0, 0, 0, 0.7)";
-  popup.style.display = "flex";
-  popup.style.justifyContent = "center";
-  popup.style.alignItems = "center";
-  popup.innerHTML = popupContent;
-
-  document.body.appendChild(popup);
-}
-
-// Function to close the popup
-function closePopup() {
-  const popup = document.getElementById("popup");
-  if (popup) {
-    popup.remove();
+  
+  // Function to delete all cards
+  function deleteAllCards(event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+  
+    const container = document.querySelector('.dropped-cards-container');
+    container.innerHTML = '';
+    addedCardIds = [];
+  
+    const dropzone = document.querySelector('.dropzone');
+    dropzone.classList.remove('has-cards');
   }
-}
-
-// Function to handle rename pipeline
-function renamePipeline(button, oldPipelineName) {
-  const newPipelineName = prompt("Enter a new name for the pipeline:", oldPipelineName);
-  if (newPipelineName && newPipelineName.trim() !== "") {
-    const pipelineItem = button.closest('.pipeline-item'); // Find the pipeline item
-    const pipelineTitle = pipelineItem.querySelector('.pipeline-title'); // Select the title element
-
-    if (pipelineTitle) {
-      pipelineTitle.textContent = newPipelineName; // Update the title with the new name
-      alert("Pipeline renamed to: " + newPipelineName);
+  
+  // Function to create a pipeline
+  function createPipeline() {
+    const pipelineName = document.getElementById("pipelineName").value.trim();
+    const container = document.querySelector('.dropped-cards-container');
+    const features = container.querySelectorAll('.dropped-card');
+  
+    if (!pipelineName) {
+      alert("Please enter a pipeline name!");
+      return;
+    }
+  
+    if (features.length === 0) {
+      alert("Please drag at least one feature into the pipeline!");
+      return;
+    }
+  
+    const featureList = Array.from(features).map(feature => feature.textContent);
+  
+    // Create the popup content
+    const popupContent = `
+      <div style="padding: 20px; background-color: #fff; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.5); width: 300px; margin: 50px auto;">
+        <h3 style="margin-bottom: 20px;">Pipeline Created</h3>
+        <p><strong>Pipeline Name:</strong> ${pipelineName}</p>
+        <p><strong>Features:</strong></p>
+        <ul style="list-style-type: none; padding: 0;">
+          ${featureList.map(feature => `<li>${feature}</li>`).join('')}
+        </ul>
+        <button onclick="closePopup()" style="margin-top: 20px; padding: 10px 20px; background-color: #ef6603; color: white; border: none; border-radius: 5px; cursor: pointer;">Close</button>
+      </div>
+    `;
+  
+    const popup = document.createElement('div');
+    popup.id = "popup";
+    popup.style.position = "fixed";
+    popup.style.top = "0";
+    popup.style.left = "0";
+    popup.style.width = "100vw";
+    popup.style.height = "100vh";
+    popup.style.backgroundColor = "rgba(0, 0, 0, 0.7)";
+    popup.style.display = "flex";
+    popup.style.justifyContent = "center";
+    popup.style.alignItems = "center";
+    popup.innerHTML = popupContent;
+  
+    document.body.appendChild(popup);
+  
+    // Show the grid with the pipeline name
+    const pipelinesGrid = document.getElementById("pipelinesGrid");
+    pipelinesGrid.style.display = "grid"; // Display the grid
+  
+    // Add fade-in effect
+    setTimeout(() => {
+      pipelinesGrid.style.opacity = 1;
+    }, 10);
+  
+    const pipelineItem = document.createElement("div");
+    pipelineItem.className = "pipeline-item";
+    pipelineItem.style.padding = "10px";
+    pipelineItem.style.border = "1px solid #ccc";
+    pipelineItem.style.borderRadius = "5px";
+    pipelineItem.style.textAlign = "center";
+    pipelineItem.style.backgroundColor = "#f0f0f0";
+  
+    // Create a title element for the pipeline name
+    const titleElement = document.createElement("div");
+    titleElement.className = "pipeline-title";
+    titleElement.textContent = pipelineName;
+    pipelineItem.appendChild(titleElement);
+  
+    // Add click event to show pipeline details
+    pipelineItem.onclick = function() {
+      showPipelineDetails(titleElement.textContent, featureList); // Use the updated titleElement
+    };
+  
+    // Add buttons
+    const buttonContainer = document.createElement("div");
+    buttonContainer.className = "button-container";
+    buttonContainer.innerHTML = `
+      <button class="btn btn-warning btn-sm m-2" onclick="renamePipeline(this, '${pipelineName}')">Rename</button>
+      <button class="btn btn-primary btn-sm" onclick="retrainPipeline('${pipelineName}')">Retrain</button>
+      <button class="btn btn-danger btn-sm" onclick="deletePipeline(this, '${pipelineName}')">Delete</button>
+    `;
+    pipelineItem.appendChild(buttonContainer);
+  
+    // Append the new pipeline item to the grid
+    pipelinesGrid.appendChild(pipelineItem);
+  
+    // Refresh the dropped cards container
+    deleteAllCards();
+  
+    // Auto-close the popup after 3 seconds
+    setTimeout(() => {
+      closePopup();
+    }, 3000);
+  }
+  
+  // Function to show pipeline details
+  function showPipelineDetails(pipelineName, featureList) {
+    const popupContent = `
+      <div style="padding: 20px; background-color: #fff; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.5); width: 300px; margin: 50px auto;">
+        <h3 style="margin-bottom: 20px;">Pipeline Details</h3>
+        <p><strong>Pipeline Name:</strong> ${pipelineName}</p>
+        <p><strong>Features:</strong></p>
+        <ul style="list-style-type: none; padding: 0;">
+          ${featureList.map(feature => `<li>${feature}</li>`).join('')}
+        </ul>
+        <button onclick="closePopup()" style="margin-top: 20px; padding: 10px 20px; background-color: #ef6603; color: white; border: none; border-radius: 5px; cursor: pointer;">Close</button>
+      </div>
+    `;
+  
+    const popup = document.createElement('div');
+    popup.id = "popup";
+    popup.style.position = "fixed";
+    popup.style.top = "0";
+    popup.style.left = "0";
+    popup.style.width = "100vw";
+    popup.style.height = "100vh";
+    popup.style.backgroundColor = "rgba(0, 0, 0, 0.7)";
+    popup.style.display = "flex";
+    popup.style.justifyContent = "center";
+    popup.style.alignItems = "center";
+    popup.innerHTML = popupContent;
+  
+    document.body.appendChild(popup);
+  }
+  
+  // Function to close the popup
+  function closePopup() {
+    const popup = document.getElementById("popup");
+    if (popup) {
+      popup.remove();
     }
   }
-}
-
-// Function to retrain pipeline
-function retrainPipeline(pipelineName) {
-  alert("Retraining pipeline: " + pipelineName);
-  // Add your retraining logic here
-}
-
-// Function to delete pipeline
-function deletePipeline(button, pipelineName) {
-  const pipelineItem = button.closest('.pipeline-item');
-  if (pipelineItem) {
-    pipelineItem.remove();
-    alert("Pipeline deleted: " + pipelineName);
+  
+  // Function to handle rename pipeline
+  function renamePipeline(button, oldPipelineName) {
+    const newPipelineName = prompt("Enter a new name for the pipeline:", oldPipelineName);
+    if (newPipelineName && newPipelineName.trim() !== "") {
+      const pipelineItem = button.closest('.pipeline-item'); // Find the pipeline item
+      const titleElement = pipelineItem.querySelector('.pipeline-title'); // Use a dedicated title element
+      if (titleElement) {
+        titleElement.textContent = newPipelineName; // Update the title with the new name
+        alert("Pipeline renamed to: " + newPipelineName);
+      }
+    }
   }
-}
+  
+  // Function to retrain pipeline
+  function retrainPipeline(pipelineName) {
+    alert("Retraining pipeline: " + pipelineName);
+    // Add your retraining logic here
+  }
+  
+  // Function to delete pipeline
+  function deletePipeline(button, pipelineName) {
+    const pipelineItem = button.closest('.pipeline-item');
+    if (pipelineItem) {
+      pipelineItem.remove();
+      alert("Pipeline deleted: " + pipelineName);
+      
+      // Close any open popup
+      const popup = document.getElementById("popup");
+      if (popup) {
+        popup.remove();
+      }
+    }
+  }
+  
+  // Function to delete a specific card
+  function deleteCard(cardId) {
+    const card = document.getElementById(cardId);
+    if (card) {
+      card.remove();
+      addedCardIds = addedCardIds.filter(id => id !== cardId);
+      
+      // Close any open popup
+      const popup = document.getElementById("popup");
+      if (popup) {
+        popup.remove();
+      }
+    }
+  }
+  
+  
 
-// Dustbin event listeners for card deletion
-const dustbin = document.querySelector('.dustbin');
-dustbin.addEventListener('drop', deleteAllCards);
-dustbin.addEventListener('dragover', allowDrop);
-
-
+  
+  // Dustbin event listeners for card deletion
+  const dustbin = document.querySelector('.dustbin');
+  dustbin.addEventListener('drop', deleteAllCards);
+  dustbin.addEventListener('dragover', allowDrop);
+  
 </script>
 
 
