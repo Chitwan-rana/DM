@@ -417,7 +417,7 @@
     buttonContainer.innerHTML = `
       <button class="btn btn-warning btn-sm m-2" onclick="renamePipeline(this, '${pipelineName}')">Rename</button>
       <button class="btn btn-primary btn-sm" onclick="retrainPipeline('${pipelineName}')">Retrain</button>
-      <button class="btn btn-danger btn-sm" onclick="deletePipeline(this, '${pipelineName}')">Delete</button>
+      <button class="btn btn-danger btn-sm" onclick="deletePipeline(this)">Delete</button>
     `;
     pipelineItem.appendChild(buttonContainer);
   
@@ -491,9 +491,11 @@
   }
   
   // Function to delete pipeline
-  function deletePipeline(button, pipelineName) {
+  function deletePipeline(button) {
     const pipelineItem = button.closest('.pipeline-item');
     if (pipelineItem) {
+      const titleElement = pipelineItem.querySelector('.pipeline-title'); // Get the title element
+      const pipelineName = titleElement.textContent; // Get the current name
       pipelineItem.remove();
       alert("Pipeline deleted: " + pipelineName);
       
@@ -520,18 +522,12 @@
     }
   }
   
-  
-
-  
-  // Dustbin event listeners for card deletion
+    // Dustbin event listeners for card deletion
   const dustbin = document.querySelector('.dustbin');
   dustbin.addEventListener('drop', deleteAllCards);
   dustbin.addEventListener('dragover', allowDrop);
   
 </script>
-
-
-   
   </section>
 
 {% endblock main %}
