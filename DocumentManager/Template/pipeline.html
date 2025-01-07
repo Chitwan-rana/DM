@@ -22,8 +22,8 @@
 
 .dropzone {
     border: 2.5px dashed #ffffff;
-    background-color: #3b3d49;
-    min-height: 80px;
+    background-color: #212529;
+    min-height: 70px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -256,12 +256,12 @@ th, td {
 
   <section id="about" class="about section" style="padding:1px">
     <div class="container">
-      <div class="container my-5">
+      <div class="container my-1">
         <div class="row justify-content-center">
           <div class="col-md-2 col-sm-4 col-6 mb-3">
             <div class="card card-hover" draggable="true" ondragstart="drag(event)" id="card1">
               <div class="card-image">
-                <img src="{% static 'assets/img/Preprocessing.jpg' %}" class="card-img-top" alt="Card Image" style="height:145px;">
+                <img src="{% static 'assets/img/Preprocessing.jpg' %}" class="card-img-top" alt="Card Image" style="height:115px;">
                 <h5 class="card-title">Pre Processing</h5>
               </div>
               <div class="card-hover-content">
@@ -272,7 +272,7 @@ th, td {
           <div class="col-md-2 col-sm-4 col-6 mb-4">
             <div class="card card-hover" draggable="true" ondragstart="drag(event)" id="card2">
               <div class="card-image">
-                <img src="{% static 'assets/img/classification.jpg' %}" class="card-img-top" alt="Card Image" style="height:145px;">
+                <img src="{% static 'assets/img/classification.jpg' %}" class="card-img-top" alt="Card Image" style="height:115px;">
                 <h5 class="card-title">Classification</h5>
               </div>
               <div class="card-hover-content">
@@ -283,7 +283,7 @@ th, td {
           <div class="col-md-2 col-sm-4 col-6 mb-4" >
             <div class="card card-hover" draggable="true" ondragstart="drag(event)" id="card3" >
               <div class="card-image">
-                <img src="{% static 'assets/img/Demo.jpg' %}" class="card-img-top" alt="Card Image" style="height:145px;" >
+                <img src="{% static 'assets/img/Demo.jpg' %}" class="card-img-top" alt="Card Image" style="height:115px;" >
                 <h5 class="card-title">Extraction</h5>
               </div>
               <div class="card-hover-content">
@@ -294,7 +294,7 @@ th, td {
           <div class="col-md-2 col-sm-4 col-6 mb-4">
             <div class="card card-hover" draggable="true" ondragstart="drag(event)" id="card4">
               <div class="card-image">
-                <img src="{% static 'assets/img/Validation.jpg' %}" class="card-img-top" alt="Card Image" style="height:145px;">
+                <img src="{% static 'assets/img/Validation.jpg' %}" class="card-img-top" alt="Card Image" style="height:115px;">
                 <h5 class="card-title">Post Processing</h5>
               </div>
               <div class="card-hover-content">
@@ -305,7 +305,7 @@ th, td {
           <div class="col-md-2 col-sm-4 col-6 mb-4">
             <div class="card card-hover" draggable="true" ondragstart="drag(event)" id="card5">
               <div class="card-image">
-                <img src="{% static 'assets/img/Posting.jpg' %}" class="card-img-top" alt="Card Image" style="height:145px;">
+                <img src="{% static 'assets/img/Posting.jpg' %}" class="card-img-top" alt="Card Image" style="height:115px;">
                 <h5 class="card-title">Validation</h5>
               </div>
               <div class="card-hover-content">
@@ -331,18 +331,22 @@ th, td {
       </div>
     </div>
 
-    <div class="container mb-2">
-      <label for="pipelineName" style="color: white;"></label>
-      <input type="text" id="pipelineName" placeholder="Enter pipeline name" style="width: 50%; padding: 7px; border-radius: 5px; border: 1px solid #ef6603; margin:30px 0px 0px 300px;">
+    <div style="display: flex; align-items: center; gap: 10px; width: 100%;">
+      <div class="container mb-2 col-sm-4">
+        <label for="pipelineName" style="color: white;"></label>
+        <input type="text" id="pipelineName" placeholder="Enter pipeline name" style="width: 100%; padding: 7px; border-radius: 5px; border: 1px solid #ef6603; margin: 0;">
+      </div>
+      
+      <!-- Button to create pipeline -->
+      <button class="proceed-button mb-3" onclick="createPipeline()" style="padding: 7px 15px; border: none; border-radius: 5px; background-color: #ef6603; color: white; cursor: pointer; margin-bottom: 20px;">
+        Create Pipeline
+      </button>
     </div>
-
-
-    <!-- Button to create pipeline -->
-<button class="proceed-button mb-3" onclick="createPipeline()" style="margin-bottom: 20px;">Create Pipeline</button>
+    
 
 <!-- Content to be toggled -->
 <div id="tableSection" style="display: none;">
-  <h2 style="font-family: Arial, sans-serif; color: #333; margin-bottom: 20px;">Grouped Table with Filters</h2>
+  <h2 style="font-family: Arial, sans-serif; color: #333; margin-bottom: 20px;"></h2>
   <input
     type="text"
     id="search"
@@ -463,7 +467,7 @@ th, td {
     const newRow = document.createElement('tr');
     newRow.innerHTML = `
   <td>${pipelineCount}</td>
-  <td class="pipeline-title" style="color: #212529; font-weight: bold;">${pipelineName}</td>
+  <td class="pipeline-title" style="color: black; ">${pipelineName}</td>
   <td style="color: #212529;">${featureList.join(', ')}</td>
   <td>
     <select onchange="changeStatus(this)" style="padding: 4px; border-radius: 4px; border: 1px solid #ccc; background-color: #2e2f37; color: #ffffff;">

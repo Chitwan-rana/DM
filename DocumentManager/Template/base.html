@@ -80,14 +80,9 @@
     flex-direction: column;
     text-align: center;
     position: relative;
-    min-height: 30vh;
+    min-height: 12vh;
     padding-top: 10px;
-    margin-top:40px;
-  }
-  .hero h2 {
-    margin-bottom: 30px;
-    font-size: 50px;
-    font-weight: 700;
+    margin-top:20px;
   }
   section,
 .section {
@@ -120,6 +115,15 @@
         <h1 class="sitename" style="margin-right:20px;">Document Manager</h1>
       </a>
   
+
+      <nav id="navmenu" class="navmenu">
+        <ul class="nav-links">
+          <li><a href="{% url 'Home' %}" class="active">Home</a></li>
+          <li><a href="#about" class="active">Pipeline</a></li>
+          <li><a href="#services">Services</a></li>
+          <li><a href="#faq">FAQs</a></li>
+
+      </nav>
       <!-- Auth Links (SignUp & Login on the right) -->
       <ul class="auth-links">
         {% if user.is_authenticated %}
@@ -147,9 +151,8 @@
         <!-- Slide 1 -->
         <div class="carousel-item active">
           <div class="carousel-container">
-            <h2 class="animate__animated animate__fadeInDown">Pipeline</span></h2>
-            <h4>Design a personalized pipeline specifically aligned with your requirements</h4>
-            <a href="{% url 'Home' %}" class="btn-get-started animate__animated animate__fadeInUp scrollto">Home</a>
+             <h4 style="margin-top:60px;">Welcome To Pipeline</h4>
+            {% comment %} <a href="{% url 'Home' %}" class="btn-get-started animate__animated animate__fadeInUp scrollto">Welcome To Pipeline</a> {% endcomment %} 
           </div>
         </div>
       </div>
@@ -226,4 +229,4 @@
 
 </body>
 
-</html>
+</html> 
