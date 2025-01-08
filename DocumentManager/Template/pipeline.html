@@ -4,7 +4,7 @@
 {% block main %}
 
 <style>
-.dropzone h5 {
+  .dropzone h5 {
     color: white;
     position: absolute;
     top: 50%;
@@ -16,20 +16,22 @@
 }
 
 .dropzone.dragged h5 {
-    left: 20px; 
-    transform: translateY(-50%) translateX(0); /* Adjust the value as needed */
+  left: 20px; 
+    transform: translateY(-50%) translateX(0); 
 }
 
 .dropzone {
-    border: 2.5px dashed #ffffff;
-    background-color: #212529;
-    min-height: 70px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    transition: padding-left 0.3s ease; 
-    padding-left: 0; 
+  border: 2.5px dashed #ffffff;
+  background-color: #3b3d49;
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: padding-left 0.3s ease; 
+  padding-left: 0;
+  margin-top: 140px;
+  flex-wrap: wrap; 
 }
 
 .dropzone.has-cards {
@@ -37,32 +39,34 @@
 }
 
 .dropped-cards-container {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-    align-items: center;
-    flex-wrap: wrap;
-    transition: all 0.3s ease; 
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  transition: all 0.3s ease; 
 }
 
 .dropped-card {
-    width: auto;
-    padding: 10px;
-    background-color: #fff;
-    color: #000;
-    border-radius: 5px;
-    text-align: center;
-    font-size: 1rem;
-    border: 1px solid #ddd;
-    opacity: 0;
-    transform: scale(0.8);
-    transition: opacity 0.3s ease, transform 0.3s ease; 
+  flex: 1 1 calc(25% - 10px); 
+  max-width: 200px; 
+  padding: 10px;
+  background-color: #fff;
+  color: #000;
+  border-radius: 5px;
+  text-align: center;
+  font-size: 1rem;
+  border: 1px solid #ddd;
+  opacity: 0;
+  transform: scale(0.8);
+  transition: opacity 0.3s ease, transform 0.3s ease; 
 }
 
 .dropped-card.visible {
     opacity: 1;
     transform: scale(1); 
 }
+
 
 .dustbin {
     position: absolute;
@@ -80,206 +84,166 @@
     height: 100%;
 }
 
+  
 .proceed-button {
-    display: block;
-    padding: 12px;
-    text-align: center;
-    background-color: #ef6603; 
-    color: white;
-    border: none;
-    border-radius: 5px;
-    font-size: 1.2rem;
-    margin-top: 20px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+  padding: 8px;
+  text-align: center;
+  background-color: #ef6603; 
+  color: white;
+  border: none;
+  border-radius: 15px;
+  font-size: 1.2rem;
+  margin: 18px auto; 
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  width: 20%; 
 }
+
+
+.col-md-2 {
+  flex: 0 0 auto;
+  width: 15%;
+  height:70px;
 
 .proceed-button:hover {
     background-color: #ff8c00;
 }
 
-.col-md-2 {
-    flex: 0 0 auto;
-    width: 15%; /* Adjusted width for six cards */
-}
-
 .card-hover {
-    position: relative;
-    overflow: hidden;
-    text-align: center;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    transition: transform 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  transition: transform 0.3s ease;
 }
 
 .card-hover:hover {
-    transform: scale(1.05);
+  transform: scale(1.05);
 }
 
 .card-image {
-    position: relative;
-    padding: 15px;
+  position: relative;
+  padding: 15px;
 }
 
 .card-image img {
-    width: 100%;
-    height: auto;
-    border-radius: 8px 8px 0 0;
+  width: 100%;
+  height: auto;
+  border-radius: 8px 8px 0 0;
 }
 
 .card-title {
-    margin-top: 10px;
-    font-size: 1rem;
-    font-weight: bold;
+  margin-top: 10px;
+  font-size: 1rem;
+  font-weight: bold;
 }
 
 .card-hover-content {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.7);
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    border-radius: 8px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  border-radius: 8px;
 }
 
 .card-hover:hover .card-hover-content {
-    opacity: 1;
+  opacity: 1;
 }
 
+
 .card-hover-content .card-text {
-    margin: 0;
-    font-size: 0.9rem;
-    padding: 0 10px;
+  margin: 0;
+  font-size: 0.9rem;
+  padding: 0 10px;
 }
 
 #pipelinesTable {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-    display: none; /* Initially hide the table */
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  display: none; /* Initially hide the table */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
-
 #pipelinesTable th, #pipelinesTable td {
-    border: 1px solid #ddd;
-    padding: 12px;
-    text-align: left;
+  border: 1px solid #ddd;
+  padding: 12px;
+  text-align: left;
 }
-
 #pipelinesTable th {
-    background-color: #f4f4f4;
-    font-weight: bold;
-    color: #333;
+  background-color: #f4f4f4;
+  font-weight: bold;
+  color: #333;
 }
-
 #pipelinesTable tbody tr {
-    transition: background-color 0.3s;
+  transition: background-color 0.3s;
 }
-
 #pipelinesTable tbody tr:hover {
-    background-color: #f9f9f9;
+  background-color: #f9f9f9;
 }
-
-.btn {
-    padding: 5px 10px;
-    border: none;
-    cursor: pointer;
-    border-radius: 4px;
-    font-size: 0.9em;
-}
-
-.btn-warning {
-    background-color: #f0ad4e;
-    color: white;
-}
-
-.btn-primary {
-    background-color: #0275d8;
-    color: white;
-}
-
-.btn-danger {
-    background-color: #d9534f;
-    color: white;
-}
-
 .status {
-    font-weight: bold;
-    color: green;
+  font-weight: bold;
+  color: green;
 }
-
 .table-container {
-    width: 80%;
-    margin: 20px auto;
-    border-collapse: collapse;
+  width: 80%;
+  margin: 20px auto;
+  border-collapse: collapse;
 }
-
 table {
-    width: 100%;
-    border: 1px solid #ddd;
+  width: 100%;
+  border: 1px solid #ddd;
 }
-
 th, td {
-    padding: 10px;
-    text-align: left;
+  padding: 10px;
+  text-align: left;
 }
-
 th {
-    background-color: #f4f4f4;
-    cursor: pointer;
+  background-color: #f4f4f4;
+  cursor: pointer;
 }
-
 th, td {
-    border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
 }
-
 .group-header {
-    font-weight: bold;
-    background-color: #efefef;
+  font-weight: bold;
+  background-color: #efefef;
 }
-
 .search-input {
-    margin: 10px 0;
-    padding: 8px;
-    width: 100%;
+  margin: 10px 0;
+  padding: 8px;
+  width: 100%;
 }
-
 .actions {
-    display: flex;
-    gap: 10px;
+  display: flex;
+  gap: 10px;
 }
-
 .edit-btn, .delete-btn {
-    cursor: pointer;
-    color: #007bff;
+  cursor: pointer;
+  color: #007bff;
 }
 
-.pipeline-name-container {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 20px;
+@media (max-width: 480px) {
+  .dropped-card {
+      flex: 1 1 100%; 
+  }
+  
+  .proceed-button {
+      font-size: 1rem; 
+  }
 }
 
-.pipeline-name-container input {
-    width: 75%;
-    padding: 10px;
-    border-radius: 5px;
-    border: 1px solid #ef6603;
-}
 
-.pipeline-name-container label {
-    color: white;
-    font-size: 1rem;
-}
+
 </style>
 
 <main class="main">
@@ -291,7 +255,7 @@ th, td {
           <div class="col-md-2 col-sm-4 col-6 mb-3">
             <div class="card card-hover" draggable="true" ondragstart="drag(event)" id="card1">
               <div class="card-image">
-                <img src="{% static 'assets/img/Preprocessing.jpg' %}" class="card-img-top" alt="Card Image" style="height:50px;">
+                <img src="{% static 'assets/img/Preprocessing.jpg' %}" class="card-img-top" alt="Card Image">
                 <h5 class="card-title">Pre Processing</h5>
               </div>
               <div class="card-hover-content">
@@ -302,7 +266,7 @@ th, td {
           <div class="col-md-2 col-sm-4 col-6 mb-3">
             <div class="card card-hover" draggable="true" ondragstart="drag(event)" id="card2">
               <div class="card-image">
-                <img src="{% static 'assets/img/classification.jpg' %}" class="card-img-top" alt="Card Image" style="height:50px;">
+                <img src="{% static 'assets/img/classification.jpg' %}" class="card-img-top" alt="Card Image" >
                 <h5 class="card-title">Classification</h5>
               </div>
               <div class="card-hover-content">
@@ -312,8 +276,8 @@ th, td {
           </div>
           <div class="col-md-2 col-sm-4 col-6 mb-3">
             <div class="card card-hover" draggable="true" ondragstart="drag(event)" id="card3">
-              <div class="card-image">
-                <img src="{% static 'assets/img/Demo.jpg' %}" class="card-img-top" alt="Card Image" style="height:50px;">
+              <div class="card-image" >
+                <img src="{% static 'assets/img/Demo.jpg' %}" class="card-img-top" alt="Card Image">
                 <h5 class="card-title">Extraction</h5>
               </div>
               <div class="card-hover-content">
@@ -324,7 +288,7 @@ th, td {
           <div class="col-md-2 col-sm-4 col-6 mb-3">
             <div class="card card-hover" draggable="true" ondragstart="drag(event)" id="card4">
               <div class="card-image">
-                <img src="{% static 'assets/img/Validation.jpg' %}" class="card-img-top" alt="Card Image" style="height:50px;">
+                <img src="{% static 'assets/img/Validation.jpg' %}" class="card-img-top" alt="Card Image" >
                 <h5 class="card-title">Post Processing</h5>
               </div>
               <div class="card-hover-content">
@@ -335,7 +299,7 @@ th, td {
           <div class="col-md-2 col-sm-4 col-6 mb-3">
             <div class="card card-hover" draggable="true" ondragstart="drag(event)" id="card5">
               <div class="card-image">
-                <img src="{% static 'assets/img/Posting.jpg' %}" class="card-img-top" alt="Card Image" style="height:50px;">
+                <img src="{% static 'assets/img/Posting.jpg' %}" class="card-img-top" alt="Card Image" style="height:120px;">
                 <h5 class="card-title">Validation</h5>
               </div>
               <div class="card-hover-content">
@@ -346,7 +310,7 @@ th, td {
           <div class="col-md-2 col-sm-4 col-6 mb-3">
             <div class="card card-hover" draggable="true" ondragstart="drag(event)" id="card6">
               <div class="card-image">
-                <img src="{% static 'assets/img/Deployment.jpg' %}" class="card-img-top" alt="Card Image" style="height:50px;">
+                <img src="{% static 'assets/img/Demo.jpg' %}" class="card-img-top" alt="Card Image">
                 <h5 class="card-title">Deployment</h5>
               </div>
               <div class="card-hover-content">
@@ -372,16 +336,18 @@ th, td {
     
     <!-- Pipeline Name and Create Pipeline Button on the same line -->
     <div class="pipeline-name-container">
-        <label for="pipelineName" style="color: white;"></label>
-        <input type="text" id="pipelineName" placeholder="Enter pipeline name" style="margin-top:10px;">
-        <button class="proceed-button" onclick="createPipeline()" style="margin:10px 0px 0px 100px;">
+      <div style="display: flex; align-items: center; color: white;">
+        <input type="text" id="pipelineName" placeholder="Enter pipeline name" style="margin-top:10px; width:75%;">
+        <button class="proceed-button" onclick="createPipeline()" style="margin-left:30px;">
             Create Pipeline
         </button>
     </div>
-    </div>
+    
   </div>
+</div>
 
     <!-- Content to be toggled -->
+    <div class="container">
     <div id="tableSection" style="display: none;">
       <h2 style="font-family: Arial, sans-serif; color: #333; margin-bottom: 20px;"></h2>
       <input
@@ -407,6 +373,7 @@ th, td {
         </table>
       </div>
     </div>
+  </div>
 
     <!-- Add pipeline detail popup -->
     <div id="pipelinePopup" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; padding: 20px; border-radius: 10px; z-index: 1000; box-shadow: 0px 0px 10px rgba(0,0,0,0.5);">
