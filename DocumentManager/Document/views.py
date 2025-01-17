@@ -6,8 +6,6 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
 
-
-
 def Home(request):
     return render(request, 'index.html', {'username': request.user.username})
 
