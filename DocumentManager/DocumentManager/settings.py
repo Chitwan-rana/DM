@@ -38,7 +38,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'Document',
+    'DocClassifier',
+    'DocDeployment',
+    'DocExtraction',
+    'DocPostprocess',
+    'DocPreprocess',
+    'DocValidation',
 ]
 
 MIDDLEWARE = [
