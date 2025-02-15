@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'DocPostprocess',
     'DocPreprocess',
     'DocValidation',
+    'DocChat',
 ]
 
 MIDDLEWARE = [

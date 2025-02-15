@@ -21,7 +21,6 @@ from django.conf.urls.static import static
 
 
 urlpatterns = [
-    # path('',indexView,name='home'),
     path('admin/', admin.site.urls),
     path('', Home,name='Home'),
     path('register/', register, name='register'),
@@ -33,9 +32,8 @@ urlpatterns = [
     path('', include('DocExtraction.urls')),
     path('', include('DocPostprocess.urls')),
     path('', include('DocPreprocess.urls')), 
-    path('', include('DocValidation.urls')), 
-
-
+    path('', include('DocValidation.urls')),
+    path('', include('DocChat.urls')),
 ]
     
 if settings.DEBUG:
