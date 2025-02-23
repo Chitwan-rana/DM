@@ -2,15 +2,15 @@ import os
 import time
 from django.shortcuts import render
 from django.core.files.storage import default_storage
-from langchain_groq import ChatGroq
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.chains.combine_documents import create_stuff_documents_chain
-from langchain_core.prompts import ChatPromptTemplate
-from langchain.chains import create_retrieval_chain
-from langchain_community.vectorstores import FAISS
-from langchain_community.document_loaders import PyPDFLoader
-from langchain_google_genai import GoogleGenerativeAIEmbeddings
-from dotenv import load_dotenv
+from langchain_groq import ChatGroq # type: ignore
+from langchain.text_splitter import RecursiveCharacterTextSplitter # type: ignore
+from langchain.chains.combine_documents import create_stuff_documents_chain # type: ignore
+from langchain_core.prompts import ChatPromptTemplate # type: ignore
+from langchain.chains import create_retrieval_chain # type: ignore
+from langchain_community.vectorstores import FAISS  # type: ignore
+from langchain_community.document_loaders import PyPDFLoader # type: ignore
+from langchain_google_genai import GoogleGenerativeAIEmbeddings # type: ignore
+from dotenv import load_dotenv # type: ignore
 
 # Load environment variables
 load_dotenv()

@@ -7,3 +7,5 @@ urlpatterns = [
     # path('editor/<str:original_file_name>/', download_all, name='editor_download_all'),
 
 ]
+
+

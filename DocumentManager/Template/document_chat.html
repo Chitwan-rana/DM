@@ -1,50 +1,46 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat With Document</title>
-</head>
-<body>
-    <h1>Chat With Your PDF Documents</h1>
+{% extends "base.html" %}
 
-    <!-- Upload PDF Files -->
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        <input type="file" name="pdf_files" multiple required>
-        <button type="submit" name="upload">Process Documents</button>
-    </form>
+{% block main %}
+<h1>Chat With Your PDF Documents</h1>
 
-    {% if message %}
-        <p style="color: green;">{{ message }}</p>
-    {% endif %}
+<!-- Upload PDF Files -->
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type="file" name="pdf_files" multiple required>
+    <button type="submit" name="upload">Process Documents</button>
+</form>
 
-    {% if error %}
-        <p style="color: red;">{{ error }}</p>
-    {% endif %}
+{% if message %}
+    <p style="color: green;">{{ message }}</p>
+{% endif %}
 
-    <hr>
+{% if error %}
+    <p style="color: red;">{{ error }}</p>
+{% endif %}
 
-    <!-- Ask Questions -->
-    <form method="post">
-        {% csrf_token %}
-        <input type="text" name="question" placeholder="Enter Your Question" required>
-        <button type="submit" name="ask">Ask</button>
-    </form>
+<hr>
 
-    {% if response %}
-        <h2>Response:</h2>
-        <p>{{ response }}</p>
-        <p><strong>Response Time:</strong> {{ response_time }} seconds</p>
-    {% endif %}
+<!-- Ask Questions -->
+<form method="post">
+    {% csrf_token %}
+    <input type="text" name="question" placeholder="Enter Your Question" required>
+    <button type="submit" name="ask">Ask</button>
+</form>
 
-    {% if documents %}
-        <h2>Similar Documents Found:</h2>
-        {% for doc in documents %}
-            <div style="border: 1px solid #ccc; padding: 10px; margin: 5px;">
-                <p>{{ doc }}</p>
-            </div>
-        {% endfor %}
-    {% endif %}
-</body>
-</html>
+{% if response %}
+    <h2>Response:</h2>
+    <p>{{ response }}</p>
+    <p><strong>Response Time:</strong> {{ response_time }} seconds</p>
+{% endif %}
+
+{% if documents %}
+    <h2>Similar Documents Found:</h2>
+    {% for doc in documents %}
+        <div style="border: 1px solid #ccc; padding: 10px; margin: 5px;">
+            <p>{{ doc }}</p>
+        </div>
+    {% endfor %}
+{% endif %}
+
+{% endblock main %}
+   
