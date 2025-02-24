@@ -1,46 +1,64 @@
 {% extends "base.html" %}
 
 {% block main %}
-<h1>Chat With Your PDF Documents</h1>
+<div class="container mt-4">
+    <h1 class="text-center text-primary">Chat With Your PDF Documents</h1>
 
-<!-- Upload PDF Files -->
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    <input type="file" name="pdf_files" multiple required>
-    <button type="submit" name="upload">Process Documents</button>
-</form>
+    <!-- Upload PDF Files -->
+    <div class="card p-4 shadow-sm mb-4">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label class="form-label">Upload PDF Files:</label>
+                <input type="file" name="pdf_files" multiple required class="form-control">
+            </div>
+            <button type="submit" name="upload" class="btn btn-success w-100">Process Documents</button>
+        </form>
+    </div>
 
-{% if message %}
-    <p style="color: green;">{{ message }}</p>
-{% endif %}
+    {% if message %}
+        <div class="alert alert-success text-center">{{ message }}</div>
+    {% endif %}
 
-{% if error %}
-    <p style="color: red;">{{ error }}</p>
-{% endif %}
+    {% if error %}
+        <div class="alert alert-danger text-center">{{ error }}</div>
+    {% endif %}
 
-<hr>
+    <hr>
 
-<!-- Ask Questions -->
-<form method="post">
-    {% csrf_token %}
-    <input type="text" name="question" placeholder="Enter Your Question" required>
-    <button type="submit" name="ask">Ask</button>
-</form>
+    <!-- Ask Questions -->
+    <div class="card p-4 shadow-sm mb-4">
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label class="form-label">Ask a Question:</label>
+                <input type="text" name="question" placeholder="Enter Your Question" required class="form-control">
+            </div>
+            <button type="submit" name="ask" class="btn btn-primary w-100">Ask</button>
+        </form>
+    </div>
 
-{% if response %}
-    <h2>Response:</h2>
-    <p>{{ response }}</p>
-    <p><strong>Response Time:</strong> {{ response_time }} seconds</p>
-{% endif %}
-
-{% if documents %}
-    <h2>Similar Documents Found:</h2>
-    {% for doc in documents %}
-        <div style="border: 1px solid #ccc; padding: 10px; margin: 5px;">
-            <p>{{ doc }}</p>
+    {% if response %}
+        <div class="card p-4 shadow-sm">
+            <h2 class="text-success">Response:</h2>
+            <p class="fs-5">{{ response }}</p>
+            <p class="text-muted"><strong>Response Time:</strong> {{ response_time }} seconds</p>
         </div>
-    {% endfor %}
-{% endif %}
+    {% endif %}
 
+{% comment %} 
+    {% if documents %}
+        <h2 class="mt-4 text-secondary">Similar Documents Found:</h2>
+        <div class="row">
+            {% for doc in documents %}
+                <div class="col-md-4">
+                    <div class="card p-3 shadow-sm mb-3">
+                        <p class="mb-0">{{ doc }}</p>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %} {% endcomment %}
+    
+</div>
 {% endblock main %}
-   
