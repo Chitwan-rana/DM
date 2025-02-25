@@ -19,16 +19,26 @@ def classify(request):
             if label_form.is_valid():
                 label_form.save()
                 return redirect('classify')
+            else:
+                print("Label Form Errors:", label_form.errors)  # Debugging
         elif 'upload_image' in request.POST:
             image_form = ImageForm(request.POST, request.FILES)
             if image_form.is_valid():
-                image_form.save()
-                return redirect('classify')
+                try:
+                    image_instance = image_form.save(commit=False)
+                    image_instance.save()  # Save the instance explicitly
+                    return redirect('classify')
+                except Exception as e:
+                    print("Error saving image:", e)  # Debugging
+            else:
+                print("Image Form Errors:", image_form.errors)  # Debugging
     else:
         label_form = LabelForm()
         image_form = ImageForm()
+    
     labels = Label.objects.all()
     images = Image.objects.all()
+    
     return render(request, 'Doc_Classify.html', {
         'label_form': label_form,
         'image_form': image_form,

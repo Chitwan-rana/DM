@@ -8,5 +8,5 @@ class LabelForm(forms.ModelForm):
 
 class ImageForm(forms.ModelForm):
     class Meta:
-        model = Image
+        model = Image   
         fields = ['label', 'image']

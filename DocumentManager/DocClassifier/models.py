@@ -1,14 +1,9 @@
+# models.py
 from django.db import models
 
 class Label(models.Model):
-    name = models.CharField(max_length=100, unique=True)
-
-    def __str__(self):
-        return self.name
+    name = models.CharField(max_length=100)
 
 class Image(models.Model):
+    image = models.ImageField(upload_to='images/')  # Ensure this is correctly defined
     label = models.ForeignKey(Label, on_delete=models.CASCADE)
-    image = models.ImageField(upload_to='images/')
-
-    def __str__(self):
-        return f"{self.label.name} - {self.image.name}"
