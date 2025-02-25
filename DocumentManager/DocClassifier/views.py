@@ -9,6 +9,9 @@ from torch.utils.data import Dataset, DataLoader
 from PIL import Image as PILImage
 import pytesseract
 from pytesseract import Output
+from django.contrib import messages  
+import os
+
 
 BASE_DIR = settings.BASE_DIR
 
@@ -19,26 +22,30 @@ def classify(request):
             if label_form.is_valid():
                 label_form.save()
                 return redirect('classify')
-            else:
-                print("Label Form Errors:", label_form.errors)  # Debugging
-        elif 'upload_image' in request.POST:
-            image_form = ImageForm(request.POST, request.FILES)
-            if image_form.is_valid():
+
+        elif 'upload_images' in request.POST:
+            images = request.FILES.getlist('images')  
+            label_id = request.POST.get('label')  
+
+            if label_id:
                 try:
-                    image_instance = image_form.save(commit=False)
-                    image_instance.save()  # Save the instance explicitly
-                    return redirect('classify')
-                except Exception as e:
-                    print("Error saving image:", e)  # Debugging
-            else:
-                print("Image Form Errors:", image_form.errors)  # Debugging
+                    label_instance = Label.objects.get(id=label_id)
+                except Label.DoesNotExist:
+                    label_instance = None
+
+            for image in images:
+                image_instance = Image(image=image, label=label_instance)
+                image_instance.save()
+
+            return redirect('classify')
+
     else:
         label_form = LabelForm()
         image_form = ImageForm()
-    
+
     labels = Label.objects.all()
     images = Image.objects.all()
-    
+
     return render(request, 'Doc_Classify.html', {
         'label_form': label_form,
         'image_form': image_form,
@@ -46,10 +53,13 @@ def classify(request):
         'images': images,
     })
 
+
+
 def train_model(request):
     labels = Label.objects.all()
     labels_dict = {label.name: idx for idx, label in enumerate(labels)}
     dataset = []
+    
     for label in labels:
         images = Image.objects.filter(label=label)
         for image in images:
@@ -102,7 +112,11 @@ def train_model(request):
     model.save_pretrained(os.path.join(BASE_DIR, "layoutlmv3_finetuned"))
     processor.save_pretrained(os.path.join(BASE_DIR, "layoutlmv3_finetuned"))
 
+    # Add success message
+    messages.success(request, "Training Completed! Now you can upload an image for classification.")
+
     return redirect('classify')
+
 
 def extract_text_and_bboxes(image_path):
     image = PILImage.open(image_path).convert("RGB")
@@ -122,7 +136,7 @@ def extract_text_and_bboxes(image_path):
             boxes.append([x_min, y_min, x_max, y_max])
     return image, words, boxes
 
-import os
+
 
 def predict_label(request):
     if request.method == 'POST' and request.FILES['image']:
@@ -178,3 +192,13 @@ def predict_label(request):
         })
 
     return redirect('classify')
+
+
+
+def reset_data(request):
+    if request.method == 'POST':
+        Image.objects.all().delete()
+        Label.objects.all().delete()
+        messages.success(request, "All labels and images have been deleted successfully.")
+        return redirect('classify')
+
