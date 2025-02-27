@@ -2,3 +2,4 @@ mydoc/
 layoutlmv3_finetuned/
 media/
 uploaded_documents/
+__pycache__/

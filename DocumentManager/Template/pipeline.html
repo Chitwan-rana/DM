@@ -549,40 +549,45 @@
         event.dataTransfer.setData("text", event.target.id);
       }
 
-      // Handling the drop event to add the dragged card to the drop zone
       function drop(event) {
         event.preventDefault();
         const cardId = event.dataTransfer.getData("text");
         const card = document.getElementById(cardId);
-
+      
+        if (!card) return; // Prevent errors if the card is missing
+      
         // Preventing duplicate cards from being added
         if (addedCardIds.includes(cardId)) {
           alert("This card has already been added!");
           return;
         }
-
+      
         addedCardIds.push(cardId);
-
+      
         // Creating a new div for the dropped card
         const droppedCard = document.createElement("div");
         droppedCard.className = "dropped-card";
-        droppedCard.textContent = card.querySelector(".card-title").textContent;
+        droppedCard.textContent = card.querySelector(".card-title")?.textContent.trim() || "";
         droppedCard.setAttribute("id", cardId);
         droppedCard.setAttribute("draggable", "true");
         droppedCard.ondragstart = function (event) {
           drag(event);
         };
-
+      
         // Append the dropped card to the drop zone container
-        document
-          .querySelector(".dropped-cards-container")
-          .appendChild(droppedCard);
-
+        document.querySelector(".dropped-cards-container").appendChild(droppedCard);
+      
         // Add transition effect for better user experience
         const dropzone = document.querySelector(".dropzone");
         dropzone.classList.add("dragged");
         setTimeout(() => droppedCard.classList.add("visible"), 10);
+      
+        // Check if the dragged card is "classification" and open Doc_Classify.html
+        if (droppedCard.textContent.toLowerCase() === "classification") {
+          window.location.href = "/classify"; 
+        }
       }
+      
 
       // Function to remove the card from the drop zone when dropped in the dustbin
       function dropToDelete(event) {
