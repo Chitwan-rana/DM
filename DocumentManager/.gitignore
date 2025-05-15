@@ -2,4 +2,6 @@ mydoc/
 layoutlmv3_finetuned/
 media/
 uploaded_documents/
+.env
+steps.txt
 __pycache__/
