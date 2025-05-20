@@ -33,30 +33,29 @@ prompt = ChatPromptTemplate.from_template(
 )
 
 def vector_embedding(uploaded_files):
-    if "vectors" not in globals():
-        embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
+    embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
+    
+    save_dir = "uploaded_documents"
+    os.makedirs(save_dir, exist_ok=True)
+    
+    all_docs = []
+    for uploaded_file in uploaded_files:
+        file_path = os.path.join(save_dir, uploaded_file.name)
         
-        save_dir = "uploaded_documents"
-        os.makedirs(save_dir, exist_ok=True)
+        with open(file_path, "wb") as f:
+            f.write(uploaded_file.read())
         
-        all_docs = []
-        for uploaded_file in uploaded_files:
-            file_path = os.path.join(save_dir, uploaded_file.name)
-            
-            with open(file_path, "wb") as f:
-                f.write(uploaded_file.read())
-            
-            loader = PyPDFLoader(file_path)
-            docs = loader.load()
-            all_docs.extend(docs)
-        
-        text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
-        final_documents = text_splitter.split_documents(all_docs)
-        
-        global vectors
-        vectors = FAISS.from_documents(final_documents, embeddings)
-        return "Vector Store DB is ready."
-    return "Vector Store is already initialized."
+        loader = PyPDFLoader(file_path)
+        docs = loader.load()
+        all_docs.extend(docs)
+    
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+    final_documents = text_splitter.split_documents(all_docs)
+    
+    global vectors
+    vectors = FAISS.from_documents(final_documents, embeddings)
+    return "Vector Store DB has been re-initialized with new documents."
+
 
 def document_chat_view(request):
     context = {}
