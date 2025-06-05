@@ -54,36 +54,49 @@ def vector_embedding(uploaded_files):
     
     global vectors
     vectors = FAISS.from_documents(final_documents, embeddings)
-    return "Vector Store DB has been re-initialized with new documents."
+    return "Your document is ready to take your questions."
 
 
 def document_chat_view(request):
     context = {}
-    
+
+    # Store uploaded PDF names across requests
+    if "pdf_names" not in request.session:
+        request.session["pdf_names"] = []
+
     if request.method == "POST":
         if "upload" in request.POST:
             uploaded_files = request.FILES.getlist("pdf_files")
             if uploaded_files:
+                # Save filenames in session
+                pdf_names = [file.name for file in uploaded_files]
+                request.session["pdf_names"] = pdf_names
+
                 message = vector_embedding(uploaded_files)
                 context["message"] = message
+                context["pdf_names"] = pdf_names
             else:
                 context["error"] = "Please upload at least one PDF file."
-        
+
         elif "ask" in request.POST:
             question = request.POST.get("question")
+            pdf_names = request.session.get("pdf_names", [])  # Retrieve saved names
+            context["pdf_names"] = pdf_names  # Pass to template
+
             if question and "vectors" in globals():
                 document_chain = create_stuff_documents_chain(llm, prompt)
                 retriever = vectors.as_retriever()
                 retrieval_chain = create_retrieval_chain(retriever, document_chain)
-                
+
                 start = time.process_time()
                 response = retrieval_chain.invoke({'input': question})
                 elapsed_time = time.process_time() - start
-                
+
                 context["response"] = response['answer']
                 context["response_time"] = elapsed_time
+                context["question"] = question
                 context["documents"] = [doc.page_content for doc in response.get("context", [])]
             else:
                 context["error"] = "No documents processed or question missing."
-    
+
     return render(request, "document_chat.html", context)

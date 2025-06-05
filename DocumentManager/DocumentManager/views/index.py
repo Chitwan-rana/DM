@@ -42,6 +42,9 @@ def user_logout(request):
 def pipeline(request):
     return render(request,'pipeline.html')
 
+def page_not_found(request):
+    return render(request,'page_not_found.html')
+
 
 
 
