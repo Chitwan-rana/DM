@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block main %}
+<div class="container mt-5">
+    <h1 class="mb-4 text-center text-success">Upload PDF and Extract Tables</h1>
+
+    <form method="post" enctype="multipart/form-data" class="mb-5">
+        {% csrf_token %}
+        <div class="mb-3">
+            {{ form.file.label_tag }}
+            <input type="file" name="file" class="form-control mt-2" required>
+        </div>
+        <button type="submit" class="btn btn-success">Upload</button>
+    </form>
+
+    {% if extracted_texts %}
+        <div class="mb-5">
+            <h2 class="text-primary mb-3">Extracted Table Data</h2>
+            {% for table in extracted_texts %}
+                <div class="p-3 mb-3 border border-success rounded bg-light">
+                    <strong>Table {{ forloop.counter }}</strong>
+                    <details class="mt-2">
+                        <summary class="text-muted">Show Table</summary>
+                        <pre class="mt-2">{{ table.content|default:table }}</pre>
+                    </details>
+                    {% for csv in csv_paths %}
+                        {% if csv.index == forloop.counter %}
+                            <a href="{{ csv.url }}" class="btn btn-outline-primary btn-sm mt-2 text-decoration-none" download>
+                                Download CSV
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% if image_urls %}
+        <div>
+            <h2 class="text-primary mb-3">Extracted Images</h2>
+            <div class="row row-cols-1 row-cols-md-3 g-4">
+                {% for image in image_urls %}
+                    <div class="col">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <img src="{{ image }}" alt="Extracted Image" class="card-img-top">
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -582,10 +582,14 @@
         dropzone.classList.add("dragged");
         setTimeout(() => droppedCard.classList.add("visible"), 10);
       
-        // Check if the dragged card is "classification" and open Doc_Classify.html
-        if (droppedCard.textContent.toLowerCase() === "classification") {
-          window.location.href = "/classify"; 
-        }
+  // Redirect based on card content
+  const cardTitle = droppedCard.textContent.toLowerCase();
+
+  if (cardTitle === "classification") {
+    window.location.href = "/classify";  
+  } else if (cardTitle === "extraction") {
+    window.location.href = "/Extract";   
+  }
       }
       
 
