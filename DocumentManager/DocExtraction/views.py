@@ -9,6 +9,7 @@ from .forms import PDFUploadForm
 from .models import UploadedPDF
 from dotenv import load_dotenv
 from unstructured.partition.pdf import partition_pdf
+from PyPDF2 import PdfReader
 
 # LangChain imports
 from langchain_openai import AzureChatOpenAI
@@ -83,7 +84,11 @@ def json_to_csv(json_data, path):
     df.to_csv(path, index=False)
     return path
 
-# Main view
+
+
+MAX_SIZE_MB = 1
+MAX_PAGE_COUNT = 20
+
 def extract_view(request):
     csv_paths = []
     extracted_texts = []
@@ -92,27 +97,53 @@ def extract_view(request):
     if request.method == 'POST':
         form = PDFUploadForm(request.POST, request.FILES)
         if form.is_valid():
+            uploaded_file = request.FILES['file']
+
+            # File size check
+            if uploaded_file.size > MAX_SIZE_MB * 1024 * 1024:
+                form.add_error('file', f"File too large. Maximum allowed size is {MAX_SIZE_MB} MB.")
+                return render(request, 'Doc_Extract.html', {
+                    'form': form,
+                    'error_message': f"❌ File too large. Max allowed is {MAX_SIZE_MB} MB."
+                })
+
+            # Page count check
+            try:
+                pdf_reader = PdfReader(uploaded_file)
+                num_pages = len(pdf_reader.pages)
+                if num_pages > MAX_PAGE_COUNT:
+                    form.add_error('file', f"Too many pages. Maximum allowed is {MAX_PAGE_COUNT}.")
+                    return render(request, 'Doc_Extract.html', {
+                        'form': form,
+                        'error_message': f"❌ PDF has {num_pages} pages. Max allowed is {MAX_PAGE_COUNT}."
+                    })
+            except Exception as e:
+                form.add_error('file', f"Error reading PDF: {str(e)}")
+                return render(request, 'Doc_Extract.html', {'form': form})
+
+            # Save to disk after checks
+            uploaded_file.seek(0)
             pdf_instance = form.save()
             pdf_path = pdf_instance.file.path
 
-            # Partition PDF and extract tables/images
+            # Extract content
             output_dir = os.path.join(settings.MEDIA_ROOT, 'extracted_data')
             os.makedirs(output_dir, exist_ok=True)
 
             elements = partition_pdf(
                 filename=pdf_path,
-                strategy="hi_res",  # use "fast" for quicker but less accurate results
+                strategy="hi_res",
                 extract_images_in_pdf=True,
                 extract_image_block_types=["Table"],
                 extract_image_block_output_dir=output_dir,
             )
 
-            # Extract saved table images for preview
+            # Collect image preview URLs
             for img_file in sorted(glob.glob(os.path.join(output_dir, '*'))):
                 rel_path = os.path.relpath(img_file, settings.MEDIA_ROOT)
                 image_urls.append(os.path.join(settings.MEDIA_URL, rel_path))
 
-            # Extract table text
+            # Extract table-like elements
             table_texts = [str(el) for el in elements if "Table" in str(type(el))]
 
             for i, raw_text in enumerate(table_texts):
@@ -122,6 +153,8 @@ def extract_view(request):
                         'index': i + 1,
                         'content': json.dumps(result, indent=2)
                     })
+
+                    # Save as CSV
                     output_path = os.path.join(settings.MEDIA_ROOT, f"output_table_{i+1}.csv")
                     json_to_csv(result, output_path)
                     csv_paths.append({
@@ -131,12 +164,12 @@ def extract_view(request):
                 except Exception as e:
                     extracted_texts.append({
                         'index': i + 1,
-                        'content': f"Error processing table {i+1}: {str(e)}"
+                        'content': f"❌ Error processing table {i+1}: {str(e)}"
                     })
     else:
         form = PDFUploadForm()
 
-    return render(request, 'extract.html', {
+    return render(request, 'Doc_Extract.html', {
         'form': form,
         'extracted_texts': extracted_texts,
         'csv_paths': csv_paths,

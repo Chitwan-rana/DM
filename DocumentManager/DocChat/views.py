@@ -124,4 +124,4 @@ def document_chat_view(request):
             else:
                 context["error"] = "No documents processed or question missing."
 
-    return render(request, "document_chat.html", context)
+    return render(request, "Doc_Chat.html", context)
