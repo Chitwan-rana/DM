@@ -3,6 +3,7 @@ import json
 import re
 import glob
 import pandas as pd
+import shutil
 from django.conf import settings
 from django.shortcuts import render
 from .forms import PDFUploadForm
@@ -93,11 +94,13 @@ def extract_view(request):
     csv_paths = []
     extracted_texts = []
     image_urls = []
+    pdf_name = None
 
     if request.method == 'POST':
         form = PDFUploadForm(request.POST, request.FILES)
         if form.is_valid():
             uploaded_file = request.FILES['file']
+            pdf_name = uploaded_file.name
 
             # File size check
             if uploaded_file.size > MAX_SIZE_MB * 1024 * 1024:
@@ -126,9 +129,25 @@ def extract_view(request):
             pdf_instance = form.save()
             pdf_path = pdf_instance.file.path
 
-            # Extract content
+            # CLEAN UP PREVIOUS EXTRACTION DATA
+            # 1. Clear extracted_data directory completely
             output_dir = os.path.join(settings.MEDIA_ROOT, 'extracted_data')
+            if os.path.exists(output_dir):
+                try:
+                    # Remove entire directory and its contents
+                    shutil.rmtree(output_dir)
+                except Exception as e:
+                    print(f"Error removing directory: {e}")
+            
+            # 2. Recreate the directory
             os.makedirs(output_dir, exist_ok=True)
+            
+            # 3. Clear any previous CSV files
+            for csv_file in glob.glob(os.path.join(settings.MEDIA_ROOT, 'output_table_*.csv')):
+                try:
+                    os.remove(csv_file)
+                except Exception as e:
+                    print(f"Error removing CSV file: {e}")
 
             elements = partition_pdf(
                 filename=pdf_path,
@@ -168,10 +187,16 @@ def extract_view(request):
                     })
     else:
         form = PDFUploadForm()
+        # For GET requests, clear data from previous sessions
+        csv_paths = []
+        extracted_texts = []
+        image_urls = []
+        pdf_name = None
 
     return render(request, 'Doc_Extract.html', {
         'form': form,
         'extracted_texts': extracted_texts,
         'csv_paths': csv_paths,
         'image_urls': image_urls,
+        'pdf_name': pdf_name,  # Added PDF name to context
     })

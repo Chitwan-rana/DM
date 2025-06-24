@@ -25,36 +25,70 @@
         <p class="mt-2">Processing PDF, please wait...</p>
     </div>
 
+    <!-- Display PDF file information -->
+    {% if pdf_name %}
+    <div class="alert alert-info mt-4 mb-4">
+        <div class="d-flex align-items-center">
+            <i class="fas fa-file-pdf text-danger me-3" style="font-size: 1.5rem;"></i>
+            <div>
+                <h5 class="mb-1">Processing Results</h5>
+                <p class="mb-0">File: <strong>{{ pdf_name }}</strong></p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
     {% if extracted_texts %}
         <div class="mb-5">
-            <h2 class="text-primary mb-3">Extracted Table Data</h2>
-            {% for table in extracted_texts %}
-                <div class="p-3 mb-3 border border-success rounded bg-light">
-                    <strong>Table {{ forloop.counter }}</strong>
-                    <details class="mt-2">
-                        <summary class="text-muted">Show Table</summary>
-                        <pre class="mt-2">{{ table.content|default:table }}</pre>
-                    </details>
-                    {% for csv in csv_paths %}
-                        {% if csv.index == forloop.counter %}
-                            <a href="{{ csv.url }}" class="btn btn-outline-primary btn-sm mt-2 text-decoration-none" download>
-                                Download CSV
-                            </a>
-                        {% endif %}
-                    {% endfor %}
-                </div>
-            {% endfor %}
+            <h2 class="text-primary mb-3">Extracted Tables</h2>
+            <div class="compact-content-list">
+                {% for table in extracted_texts %}
+                    <div class="content-card" data-type="table">
+                        <div class="compact-item">
+                            <i class="fas fa-table text-success me-2"></i>
+                            <span>Table {{ forloop.counter }}</span>
+                        </div>
+                        <div class="content-popup">
+                            <div class="popup-header">
+                                <h5>Table {{ forloop.counter }}</h5>
+                                {% for csv in csv_paths %}
+                                    {% if csv.index == forloop.parentloop.counter %}
+                                        <a href="{{ csv.url }}" class="btn btn-sm btn-success download-btn" download>
+                                            <i class="fas fa-download"></i> CSV
+                                        </a>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            <div class="popup-content">
+                                <pre>{{ table.content|default:table }}</pre>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
         </div>
     {% endif %}
 
     {% if image_urls %}
-        <div>
+        <div class="mb-5">
             <h2 class="text-primary mb-3">Extracted Images</h2>
-            <div class="row row-cols-1 row-cols-md-3 g-4">
+            <div class="compact-content-list">
                 {% for image in image_urls %}
-                    <div class="col">
-                        <div class="card h-100 border-0 shadow-sm">
-                            <img src="{{ image }}" alt="Extracted Image" class="card-img-top">
+                    <div class="content-card" data-type="image">
+                        <div class="compact-item">
+                            <i class="fas fa-image text-success me-2"></i>
+                            <span>Image {{ forloop.counter }}</span>
+                        </div>
+                        <div class="content-popup image-popup">
+                            <div class="popup-header">
+                                <h5>Image {{ forloop.counter }}</h5>
+                                <a href="{{ image }}" class="btn btn-sm btn-success download-btn" download>
+                                    <i class="fas fa-download"></i> Image
+                                </a>
+                            </div>
+                            <div class="popup-content">
+                                <img src="{{ image }}" alt="Extracted Image" class="img-fluid">
+                            </div>
                         </div>
                     </div>
                 {% endfor %}
@@ -63,6 +97,85 @@
     {% endif %}
 </div>
 
+<!-- Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<style>
+    /* Compact Layout Styling */
+    .compact-content-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 10px;
+    }
+    
+    .content-card {
+        position: relative;
+        cursor: pointer;
+    }
+    
+    .compact-item {
+        background-color: #f8f9fa;
+        border-radius: 5px;
+        padding: 8px 12px;
+        font-size: 0.9rem;
+        border: 1px solid #dee2e6;
+        display: flex;
+        align-items: center;
+        transition: background-color 0.2s;
+    }
+    
+    .compact-item:hover {
+        background-color: #e9ecef;
+    }
+    
+    /* Popup Styling */
+    .content-popup {
+        display: none;
+        position: absolute;
+        background: white;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        border-radius: 8px;
+        width: 350px;
+        max-height: 500px;
+        overflow-y: auto;
+        z-index: 1000;
+        top: 0;
+        left: 100%;
+        padding: 15px;
+    }
+    
+    .image-popup {
+        width: 400px;
+    }
+    
+    .content-card:hover .content-popup {
+        display: block;
+    }
+    
+    .popup-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 10px;
+        margin-bottom: 10px;
+    }
+    
+    .popup-content {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+    
+    .popup-content pre {
+        white-space: pre-wrap;
+        font-size: 0.8rem;
+    }
+    
+    .download-btn {
+        margin-left: 10px;
+    }
+</style>
+
 <!-- Spinner Script -->
 <script>
     const form = document.getElementById('pdfForm');
@@ -70,6 +183,30 @@
 
     form.addEventListener('submit', function () {
         spinner.style.display = 'block';
+    });
+    
+    // Make sure popups don't go off-screen
+    document.addEventListener('DOMContentLoaded', function() {
+        const cards = document.querySelectorAll('.content-card');
+        
+        cards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                const popup = this.querySelector('.content-popup');
+                const rect = popup.getBoundingClientRect();
+                
+                if (rect.right > window.innerWidth) {
+                    popup.style.left = 'auto';
+                    popup.style.right = '0';
+                    popup.style.transform = 'none';
+                }
+                
+                // Also check if popup would go below viewport
+                if (rect.bottom > window.innerHeight) {
+                    popup.style.top = 'auto';
+                    popup.style.bottom = '0';
+                }
+            });
+        });
     });
 </script>
 {% endblock %}
