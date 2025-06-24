@@ -53,7 +53,7 @@
                                 <h5>Table {{ forloop.counter }}</h5>
                                 {% for csv in csv_paths %}
                                     {% if csv.index == forloop.parentloop.counter %}
-                                        <a href="{{ csv.url }}" class="btn btn-sm btn-success download-btn" download>
+                                        <a href="{{ csv.url }}" class="btn btn-sm btn-success download-btn" download="{{ csv.filename }}">
                                             <i class="fas fa-download"></i> CSV
                                         </a>
                                     {% endif %}
@@ -82,12 +82,12 @@
                         <div class="content-popup image-popup">
                             <div class="popup-header">
                                 <h5>Image {{ forloop.counter }}</h5>
-                                <a href="{{ image }}" class="btn btn-sm btn-success download-btn" download>
+                                <a href="{{ image.url }}" class="btn btn-sm btn-success download-btn" download="{{ image.filename }}">
                                     <i class="fas fa-download"></i> Image
                                 </a>
                             </div>
                             <div class="popup-content">
-                                <img src="{{ image }}" alt="Extracted Image" class="img-fluid">
+                                <img src="{{ image.url }}" alt="Extracted Image" class="img-fluid">
                             </div>
                         </div>
                     </div>

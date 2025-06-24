@@ -9,7 +9,7 @@ from django.shortcuts import render
 from .forms import PDFUploadForm
 from .models import UploadedPDF
 from dotenv import load_dotenv
-from unstructured.partition.pdf import partition_pdf
+from unstructured.partition.pdf import partition_pdf  
 from PyPDF2 import PdfReader
 
 # LangChain imports
@@ -143,7 +143,9 @@ def extract_view(request):
             os.makedirs(output_dir, exist_ok=True)
             
             # 3. Clear any previous CSV files
-            for csv_file in glob.glob(os.path.join(settings.MEDIA_ROOT, 'output_table_*.csv')):
+            csv_dir = os.path.join(settings.MEDIA_ROOT, 'csv_outputs')
+            os.makedirs(csv_dir, exist_ok=True)
+            for csv_file in glob.glob(os.path.join(csv_dir, '*.csv')):
                 try:
                     os.remove(csv_file)
                 except Exception as e:
@@ -157,10 +159,14 @@ def extract_view(request):
                 extract_image_block_output_dir=output_dir,
             )
 
-            # Collect image preview URLs
+            # Collect image preview URLs with filenames
             for img_file in sorted(glob.glob(os.path.join(output_dir, '*'))):
                 rel_path = os.path.relpath(img_file, settings.MEDIA_ROOT)
-                image_urls.append(os.path.join(settings.MEDIA_URL, rel_path))
+                filename = os.path.basename(img_file)
+                image_urls.append({
+                    'url': os.path.join(settings.MEDIA_URL, rel_path),
+                    'filename': f"image_{len(image_urls)+1}_{filename}"
+                })
 
             # Extract table-like elements
             table_texts = [str(el) for el in elements if "Table" in str(type(el))]
@@ -173,12 +179,14 @@ def extract_view(request):
                         'content': json.dumps(result, indent=2)
                     })
 
-                    # Save as CSV
-                    output_path = os.path.join(settings.MEDIA_ROOT, f"output_table_{i+1}.csv")
+                    # Save as CSV in dedicated directory
+                    csv_filename = f"table_{i+1}_{pdf_name.replace(' ', '_')}.csv"
+                    output_path = os.path.join(csv_dir, csv_filename)
                     json_to_csv(result, output_path)
                     csv_paths.append({
                         'index': i + 1,
-                        'url': os.path.join(settings.MEDIA_URL, f"output_table_{i+1}.csv")
+                        'url': os.path.join(settings.MEDIA_URL, 'csv_outputs', csv_filename),
+                        'filename': csv_filename
                     })
                 except Exception as e:
                     extracted_texts.append({
@@ -187,7 +195,7 @@ def extract_view(request):
                     })
     else:
         form = PDFUploadForm()
-        # For GET requests, clear data from previous sessions
+        # For GET requests, clear data
         csv_paths = []
         extracted_texts = []
         image_urls = []
@@ -198,5 +206,5 @@ def extract_view(request):
         'extracted_texts': extracted_texts,
         'csv_paths': csv_paths,
         'image_urls': image_urls,
-        'pdf_name': pdf_name,  # Added PDF name to context
+        'pdf_name': pdf_name,
     })
