@@ -379,3 +379,190 @@ def download_compressed_pdf(request):
     del request.session['output_filename']
     
     return response
+
+class PDFSplitForm(forms.Form):
+    pdf_file = forms.FileField(label='Select a PDF file to split')
+    start_page = forms.IntegerField(
+        label='Start Page', 
+        min_value=1, 
+        initial=1,
+        help_text='First page to include in the split'
+    )
+    end_page = forms.IntegerField(
+        label='End Page', 
+        min_value=1,
+        help_text='Last page to include in the split'
+    )
+    output_filename = forms.CharField(
+        label='Output filename',
+        initial='split.pdf',
+        help_text='Name of the split PDF file'
+    )
+
+class PDFSplitForm(forms.Form):
+    pdf_file = forms.FileField(label='Select a PDF file to split')
+    start_page = forms.IntegerField(
+        label='Start Page', 
+        min_value=1, 
+        initial=1,
+        help_text='First page to include in the split'
+    )
+    end_page = forms.IntegerField(
+        label='End Page', 
+        min_value=1,
+        help_text='Last page to include in the split'
+    )
+    output_filename = forms.CharField(
+        label='Output filename',
+        initial='split.pdf',
+        help_text='Name of the split PDF file'
+    )
+
+
+def split_pdf(pdf_file, start_page, end_page):
+    """Split a PDF file from start_page to end_page."""
+    try:
+        # Create temporary files
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as input_temp, \
+             tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as output_temp:
+            
+            # Save the uploaded file to a temporary file
+            for chunk in pdf_file.chunks():
+                input_temp.write(chunk)
+            
+            input_path = input_temp.name
+            output_path = output_temp.name
+        
+        # Get PDF info
+        with open(input_path, 'rb') as file:
+            pdf_reader = PyPDF2.PdfReader(file)
+            total_pages = len(pdf_reader.pages)
+        
+        # Validate page ranges
+        start_page = max(1, min(start_page, total_pages))
+        end_page = max(start_page, min(end_page, total_pages))
+        
+        # Create a PDF writer object
+        pdf_writer = PyPDF2.PdfWriter()
+        
+        # Add specified pages to the writer
+        with open(input_path, 'rb') as file:
+            pdf_reader = PyPDF2.PdfReader(file)
+            for page_num in range(start_page - 1, end_page):  # PyPDF2 uses 0-based indexing
+                pdf_writer.add_page(pdf_reader.pages[page_num])
+        
+        # Write to the output file
+        with open(output_path, 'wb') as output_file:
+            pdf_writer.write(output_file)
+        
+        # Read the split PDF to return it
+        with open(output_path, 'rb') as split_pdf:
+            split_content = split_pdf.read()
+        
+        # Clean up temporary files
+        os.unlink(input_path)
+        os.unlink(output_path)
+        
+        return split_content
+        
+    except Exception as e:
+        logger.error(f"Error splitting PDF: {str(e)}")
+        import traceback
+        logger.error(traceback.format_exc())
+        return None
+    
+def split_pdf_view(request):
+    """View to split a PDF file."""
+    context = {
+        'form': PDFSplitForm(),
+        'error': None,
+        'success': False,
+        'pdf_info': None,
+    }
+    
+    if request.method == 'POST':
+        form = PDFSplitForm(request.POST, request.FILES)
+        context['form'] = form
+        
+        if form.is_valid():
+            try:
+                pdf_file = request.FILES['pdf_file']
+                start_page = form.cleaned_data['start_page']
+                end_page = form.cleaned_data['end_page']
+                output_filename = form.cleaned_data['output_filename']
+                
+                # Ensure the filename ends with .pdf
+                if not output_filename.lower().endswith('.pdf'):
+                    output_filename += '.pdf'
+                
+                # Check file size
+                if pdf_file.size > 100 * 1024 * 1024:  # 100MB limit
+                    context['error'] = "File is too large. Maximum file size is 100MB."
+                    return render(request, 'split_pdf.html', context)
+                
+                # Get total pages first
+                with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as temp_file:
+                    for chunk in pdf_file.chunks():
+                        temp_file.write(chunk)
+                    temp_file_path = temp_file.name
+                
+                with open(temp_file_path, 'rb') as file:
+                    pdf_reader = PyPDF2.PdfReader(file)
+                    total_pages = len(pdf_reader.pages)
+                
+                os.unlink(temp_file_path)
+                
+                # Reset file pointer to beginning for processing
+                pdf_file.seek(0)
+                
+                # Validate page range
+                if start_page < 1 or start_page > total_pages:
+                    context['error'] = f"Invalid start page. Please specify a page between 1 and {total_pages}."
+                    return render(request, 'split_pdf.html', context)
+                
+                if end_page < start_page or end_page > total_pages:
+                    context['error'] = f"Invalid end page. Please specify a page between {start_page} and {total_pages}."
+                    return render(request, 'split_pdf.html', context)
+                
+                # Split the PDF
+                split_content = split_pdf(pdf_file, start_page, end_page)
+                if not split_content:
+                    context['error'] = "Failed to split the PDF. Please try again."
+                    return render(request, 'split_pdf.html', context)
+                
+                # Store the split PDF content in the session
+                request.session['split_pdf'] = split_content.hex()
+                request.session['output_filename'] = output_filename
+                
+                # Add success info to the context
+                context['success'] = True
+                context['start_page'] = start_page
+                context['end_page'] = end_page
+                context['total_pages'] = total_pages
+                context['output_filename'] = output_filename
+                
+            except Exception as e:
+                logger.error(f"Error in split_pdf_view: {str(e)}")
+                context['error'] = f"An error occurred: {str(e)}"
+    
+    return render(request, 'split_pdf.html', context)
+
+
+def download_split_pdf(request):
+    """Download the split PDF file."""
+    if 'split_pdf' not in request.session or 'output_filename' not in request.session:
+        return HttpResponse("No split PDF found. Please split a PDF first.", status=404)
+    
+    # Get the split PDF content from the session
+    split_content = bytes.fromhex(request.session['split_pdf'])
+    output_filename = request.session['output_filename']
+    
+    # Create the HTTP response with the split PDF
+    response = HttpResponse(split_content, content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="{output_filename}"'
+    
+    # Clear the session data
+    del request.session['split_pdf']
+    del request.session['output_filename']
+    
+    return response
