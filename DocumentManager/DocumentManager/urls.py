@@ -35,6 +35,8 @@ urlpatterns = [
     path('', include('DocPreprocess.urls')), 
     path('', include('DocValidation.urls')),
     path('', include('DocChat.urls')),
+    path('', include('IDP.urls')),
+
 ]
     
 if settings.DEBUG:

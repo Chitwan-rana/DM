@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block main %}
+<div class="container mt-5">
+    <h2 class="mb-4">PDF Merger Tool</h2>
+    
+    {% if error %}
+    <div class="alert alert-danger">
+        {{ error }}
+    </div>
+    {% endif %}
+    
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            Merge PDF Files
+        </div>
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="mb-3">
+                    {{ form.pdf_file1.label_tag }}
+                    {{ form.pdf_file1 }}
+                    <div class="form-text">Select the first PDF file to merge.</div>
+                </div>
+                <div class="mb-3">
+                    {{ form.pdf_file2.label_tag }}
+                    {{ form.pdf_file2 }}
+                    <div class="form-text">Select the second PDF file to merge.</div>
+                </div>
+                <div class="mb-3">
+                    {{ form.output_filename.label_tag }}
+                    {{ form.output_filename }}
+                    <div class="form-text">{{ form.output_filename.help_text }}</div>
+                </div>
+                <button type="submit" class="btn btn-primary">Merge PDFs</button>
+            </form>
+        </div>
+    </div>
+    
+    <div class="alert alert-info">
+        <h5>How to use:</h5>
+        <ol>
+            <li>Upload your first PDF file</li>
+            <li>Upload your second PDF file</li>
+            <li>Enter a name for the merged PDF (optional)</li>
+            <li>Click "Merge PDFs" to download the merged document</li>
+        </ol>
+    </div>
+</div>
+{% endblock %}
