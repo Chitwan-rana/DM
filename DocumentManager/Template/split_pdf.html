@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block title %}Split PDF{% endblock %}
+
+{% block main %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0"><i class="fas fa-cut me-2"></i>Split PDF</h2>
+                </div>
+                <div class="card-body">
+                    {% if error %}
+                    <div class="alert alert-danger" role="alert">
+                        <i class="fas fa-exclamation-triangle me-2"></i>{{ error }}
+                    </div>
+                    {% endif %}
+
+                    {% if success %}
+                    <div class="alert alert-success" role="alert">
+                        <i class="fas fa-check-circle me-2"></i>PDF successfully split!
+                    </div>
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">PDF Split Details</h5>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Total Pages
+                                    <span class="badge bg-primary rounded-pill">{{ total_pages }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Pages Extracted
+                                    <span class="badge bg-primary rounded-pill">{{ start_page }} to {{ end_page }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Output Filename
+                                    <span class="badge bg-secondary rounded-pill">{{ output_filename }}</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="card-footer text-center">
+                            <a href="{% url 'download_split_pdf' %}" class="btn btn-success">
+                                <i class="fas fa-download me-2"></i>Download Split PDF
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="id_pdf_file" class="form-label">{{ form.pdf_file.label }}</label>
+                            {{ form.pdf_file }}
+                            <div class="form-text">Select a PDF file to split. Maximum file size: 100MB.</div>
+                            {% if form.pdf_file.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.pdf_file.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="id_start_page" class="form-label">{{ form.start_page.label }}</label>
+                                {{ form.start_page }}
+                                <div class="form-text">{{ form.start_page.help_text }}</div>
+                                {% if form.start_page.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.start_page.errors }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="id_end_page" class="form-label">{{ form.end_page.label }}</label>
+                                {{ form.end_page }}
+                                <div class="form-text">{{ form.end_page.help_text }}</div>
+                                {% if form.end_page.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.end_page.errors }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="id_output_filename" class="form-label">{{ form.output_filename.label }}</label>
+                            {{ form.output_filename }}
+                            <div class="form-text">{{ form.output_filename.help_text }}</div>
+                            {% if form.output_filename.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.output_filename.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-cut me-2"></i>Split PDF
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="card-footer bg-light">
+                    <div class="small text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        This tool extracts specific pages from a PDF document. Enter the start and end page numbers to create a new PDF with just those pages.
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Instructions card -->
+            <div class="card mt-4 shadow">
+                <div class="card-header bg-secondary text-white">
+                    <h4 class="mb-0"><i class="fas fa-question-circle me-2"></i>How to Split a PDF</h4>
+                </div>
+                <div class="card-body">
+                    <ol class="mb-0">
+                        <li>Click the <strong>Choose File</strong> button to upload your PDF document.</li>
+                        <li>Enter the <strong>Start Page</strong> number (the first page you want to include).</li>
+                        <li>Enter the <strong>End Page</strong> number (the last page you want to include).</li>
+                        <li>Customize the output filename if desired.</li>
+                        <li>Click the <strong>Split PDF</strong> button.</li>
+                        <li>When processing is complete, click <strong>Download Split PDF</strong> to save the result.</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if form.media %}{{ form.media }}{% endif %}
+
+<!-- Script to add Bootstrap classes to form elements -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('id_pdf_file').classList.add('form-control');
+        document.getElementById('id_start_page').classList.add('form-control');
+        document.getElementById('id_end_page').classList.add('form-control');
+        document.getElementById('id_output_filename').classList.add('form-control');
+    });
+</script>
+{% endblock %}

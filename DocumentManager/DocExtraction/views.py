@@ -1,3 +1,210 @@
+import os
+import json
+import re
+import glob
+import pandas as pd
+import shutil
+from django.conf import settings
 from django.shortcuts import render
+from .forms import PDFUploadForm
+from .models import UploadedPDF
+from dotenv import load_dotenv
+from unstructured.partition.pdf import partition_pdf  
+from PyPDF2 import PdfReader
 
-# Create your views here.
+# LangChain imports
+from langchain_openai import AzureChatOpenAI
+from langchain_core.prompts import PromptTemplate
+from langchain_core.output_parsers import JsonOutputParser
+from langchain_core.runnables import RunnableLambda
+
+# Load environment variables
+load_dotenv()
+
+# Azure OpenAI configuration
+api_key = os.getenv("OPENAI_API_KEY")
+end_point = os.getenv("AZURE_OPENAI_ENDPOINT")
+model_name = os.getenv("AZURE_OPENAI_MODEL_NAME")
+api_version = os.getenv("AZURE_OPENAI_API_VERSION")
+deployment = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME")
+
+
+
+# Initialize LangChain model
+model = AzureChatOpenAI(
+    azure_deployment=deployment,
+    api_version=api_version,
+    azure_endpoint=end_point,
+    api_key=api_key,
+    temperature=0,
+)
+
+# JSON parser
+parser = JsonOutputParser()
+
+# Fix AIMessage to raw string
+def fix_json_output(text):
+    if not isinstance(text, str):
+        text = str(text.content if hasattr(text, "content") else text)
+    match = re.search(r'(\[|\{).*(\]|\})', text, re.DOTALL)
+    if match:
+        try:
+            return json.loads(match.group(0))
+        except json.JSONDecodeError:
+            raise ValueError("Invalid JSON output")
+    raise ValueError("No JSON structure found")
+
+# Prompt template for table extraction
+template = PromptTemplate.from_template(
+    """
+    You are a helpful assistant that can convert raw table-like text into structured JSON.
+
+    The raw extracted table content is:
+    {pdf_content}
+
+    Instructions:
+    - Identify rows and columns in the table.
+    - Create a list of dictionaries, where each dictionary represents one row.
+    - Each key in the dictionary should be a column header.
+    - Use the same column headers for all rows.
+    - ONLY RESPOND WITH THE JSON.
+    - Format your response as a valid, parsable JSON array.
+    - Start your response with '[' and end with ']'
+    
+    {format_instructions}
+    """,
+    partial_variables={"format_instructions": parser.get_format_instructions()}
+)
+
+# LangChain pipeline
+chain = template | model | RunnableLambda(lambda x: fix_json_output(x))
+
+# Convert JSON data to CSV
+def json_to_csv(json_data, path):
+    df = pd.DataFrame(json_data)
+    df.to_csv(path, index=False)
+    return path
+
+
+
+MAX_SIZE_MB = 1
+MAX_PAGE_COUNT = 20
+
+def extract_view(request):
+    csv_paths = []
+    extracted_texts = []
+    image_urls = []
+    pdf_name = None
+
+    if request.method == 'POST':
+        form = PDFUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            uploaded_file = request.FILES['file']
+            pdf_name = uploaded_file.name
+
+            # File size check
+            if uploaded_file.size > MAX_SIZE_MB * 1024 * 1024:
+                form.add_error('file', f"File too large. Maximum allowed size is {MAX_SIZE_MB} MB.")
+                return render(request, 'Doc_Extract.html', {
+                    'form': form,
+                    'error_message': f"❌ File too large. Max allowed is {MAX_SIZE_MB} MB."
+                })
+
+            # Page count check
+            try:
+                pdf_reader = PdfReader(uploaded_file)
+                num_pages = len(pdf_reader.pages)
+                if num_pages > MAX_PAGE_COUNT:
+                    form.add_error('file', f"Too many pages. Maximum allowed is {MAX_PAGE_COUNT}.")
+                    return render(request, 'Doc_Extract.html', {
+                        'form': form,
+                        'error_message': f"❌ PDF has {num_pages} pages. Max allowed is {MAX_PAGE_COUNT}."
+                    })
+            except Exception as e:
+                form.add_error('file', f"Error reading PDF: {str(e)}")
+                return render(request, 'Doc_Extract.html', {'form': form})
+
+            # Save to disk after checks
+            uploaded_file.seek(0)
+            pdf_instance = form.save()
+            pdf_path = pdf_instance.file.path
+
+            # CLEAN UP PREVIOUS EXTRACTION DATA
+            # 1. Clear extracted_data directory completely
+            output_dir = os.path.join(settings.MEDIA_ROOT, 'extracted_data')
+            if os.path.exists(output_dir):
+                try:
+                    # Remove entire directory and its contents
+                    shutil.rmtree(output_dir)
+                except Exception as e:
+                    print(f"Error removing directory: {e}")
+            
+            # 2. Recreate the directory
+            os.makedirs(output_dir, exist_ok=True)
+            
+            # 3. Clear any previous CSV files
+            csv_dir = os.path.join(settings.MEDIA_ROOT, 'csv_outputs')
+            os.makedirs(csv_dir, exist_ok=True)
+            for csv_file in glob.glob(os.path.join(csv_dir, '*.csv')):
+                try:
+                    os.remove(csv_file)
+                except Exception as e:
+                    print(f"Error removing CSV file: {e}")
+
+            elements = partition_pdf(
+                filename=pdf_path,
+                strategy="hi_res",
+                extract_images_in_pdf=True,
+                extract_image_block_types=["Table"],
+                extract_image_block_output_dir=output_dir,
+            )
+
+            # Collect image preview URLs with filenames
+            for img_file in sorted(glob.glob(os.path.join(output_dir, '*'))):
+                rel_path = os.path.relpath(img_file, settings.MEDIA_ROOT)
+                filename = os.path.basename(img_file)
+                image_urls.append({
+                    'url': os.path.join(settings.MEDIA_URL, rel_path),
+                    'filename': f"image_{len(image_urls)+1}_{filename}"
+                })
+
+            # Extract table-like elements
+            table_texts = [str(el) for el in elements if "Table" in str(type(el))]
+
+            for i, raw_text in enumerate(table_texts):
+                try:
+                    result = chain.invoke({"pdf_content": raw_text})
+                    extracted_texts.append({
+                        'index': i + 1,
+                        'content': json.dumps(result, indent=2)
+                    })
+
+                    # Save as CSV in dedicated directory
+                    csv_filename = f"table_{i+1}_{pdf_name.replace(' ', '_')}.csv"
+                    output_path = os.path.join(csv_dir, csv_filename)
+                    json_to_csv(result, output_path)
+                    csv_paths.append({
+                        'index': i + 1,
+                        'url': os.path.join(settings.MEDIA_URL, 'csv_outputs', csv_filename),
+                        'filename': csv_filename
+                    })
+                except Exception as e:
+                    extracted_texts.append({
+                        'index': i + 1,
+                        'content': f"❌ Error processing table {i+1}: {str(e)}"
+                    })
+    else:
+        form = PDFUploadForm()
+        # For GET requests, clear data
+        csv_paths = []
+        extracted_texts = []
+        image_urls = []
+        pdf_name = None
+
+    return render(request, 'Doc_Extract.html', {
+        'form': form,
+        'extracted_texts': extracted_texts,
+        'csv_paths': csv_paths,
+        'image_urls': image_urls,
+        'pdf_name': pdf_name,
+    })

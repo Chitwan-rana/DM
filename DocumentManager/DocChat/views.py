@@ -2,15 +2,16 @@ import os
 import time
 from django.shortcuts import render
 from django.core.files.storage import default_storage
-from langchain_groq import ChatGroq # type: ignore
-from langchain.text_splitter import RecursiveCharacterTextSplitter # type: ignore
-from langchain.chains.combine_documents import create_stuff_documents_chain # type: ignore
-from langchain_core.prompts import ChatPromptTemplate # type: ignore
-from langchain.chains import create_retrieval_chain # type: ignore
+from langchain_groq import ChatGroq  # type: ignore
+from langchain.text_splitter import RecursiveCharacterTextSplitter  # type: ignore
+from langchain.chains.combine_documents import create_stuff_documents_chain  # type: ignore
+from langchain_core.prompts import ChatPromptTemplate  # type: ignore
+from langchain.chains import create_retrieval_chain  # type: ignore
 from langchain_community.vectorstores import FAISS  # type: ignore
-from langchain_community.document_loaders import PyPDFLoader # type: ignore
-from langchain_google_genai import GoogleGenerativeAIEmbeddings # type: ignore
-from dotenv import load_dotenv # type: ignore
+from langchain_community.document_loaders import PyPDFLoader  # type: ignore
+from langchain_google_genai import GoogleGenerativeAIEmbeddings  # type: ignore
+from dotenv import load_dotenv  # type: ignore
+from PyPDF2 import PdfReader  # for checking PDF page count
 
 # Load environment variables
 load_dotenv()
@@ -32,6 +33,9 @@ prompt = ChatPromptTemplate.from_template(
     """
 )
 
+MAX_PDF_SIZE = 50 * 1024 * 1024  # 50 MB in bytes
+MAX_PAGE_COUNT = 100
+
 def vector_embedding(uploaded_files):
     embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
     
@@ -40,11 +44,27 @@ def vector_embedding(uploaded_files):
     
     all_docs = []
     for uploaded_file in uploaded_files:
-        file_path = os.path.join(save_dir, uploaded_file.name)
+        # Check file size
+        if uploaded_file.size > MAX_PDF_SIZE:
+            return f"Unable to process {uploaded_file.name}: file size exceeds 50 MB."
+
+        # Check page count without saving file
+        try:
+            pdf_reader = PdfReader(uploaded_file)
+            num_pages = len(pdf_reader.pages)
+            if num_pages > MAX_PAGE_COUNT:
+                return f"Unable to process {uploaded_file.name}: PDF page count exceeds 100."
+        except Exception as e:
+            return f"Unable to process {uploaded_file.name}: error reading PDF ({str(e)})."
         
+        # Reset file pointer to start after reading pages
+        uploaded_file.seek(0)
+
+        # Save file
+        file_path = os.path.join(save_dir, uploaded_file.name)
         with open(file_path, "wb") as f:
             f.write(uploaded_file.read())
-        
+
         loader = PyPDFLoader(file_path)
         docs = loader.load()
         all_docs.extend(docs)
@@ -54,36 +74,54 @@ def vector_embedding(uploaded_files):
     
     global vectors
     vectors = FAISS.from_documents(final_documents, embeddings)
-    return "Vector Store DB has been re-initialized with new documents."
+    return "Your document is ready to take your questions."
 
 
 def document_chat_view(request):
     context = {}
-    
+
+    # Store uploaded PDF names across requests
+    if "pdf_names" not in request.session:
+        request.session["pdf_names"] = []
+
     if request.method == "POST":
         if "upload" in request.POST:
             uploaded_files = request.FILES.getlist("pdf_files")
             if uploaded_files:
+                # Check and process documents
                 message = vector_embedding(uploaded_files)
-                context["message"] = message
+                if message.startswith("Unable to process"):
+                    # Error happened due to size/page count limit
+                    context["error"] = message
+                    context["pdf_names"] = []
+                else:
+                    # Success
+                    pdf_names = [file.name for file in uploaded_files]
+                    request.session["pdf_names"] = pdf_names
+                    context["message"] = message
+                    context["pdf_names"] = pdf_names
             else:
                 context["error"] = "Please upload at least one PDF file."
-        
+
         elif "ask" in request.POST:
             question = request.POST.get("question")
+            pdf_names = request.session.get("pdf_names", [])  # Retrieve saved names
+            context["pdf_names"] = pdf_names  # Pass to template
+
             if question and "vectors" in globals():
                 document_chain = create_stuff_documents_chain(llm, prompt)
                 retriever = vectors.as_retriever()
                 retrieval_chain = create_retrieval_chain(retriever, document_chain)
-                
+
                 start = time.process_time()
                 response = retrieval_chain.invoke({'input': question})
                 elapsed_time = time.process_time() - start
-                
+
                 context["response"] = response['answer']
                 context["response_time"] = elapsed_time
+                context["question"] = question
                 context["documents"] = [doc.page_content for doc in response.get("context", [])]
             else:
                 context["error"] = "No documents processed or question missing."
-    
-    return render(request, "document_chat.html", context)
+
+    return render(request, "Doc_Chat.html", context)

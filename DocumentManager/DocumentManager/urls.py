@@ -27,6 +27,7 @@ urlpatterns = [
     path('login/', user_login, name='login'),
     path('logout/', user_logout, name='logout'),
     path('pipeline/',pipeline,name='pipeline'),
+    path('page_not_found/', page_not_found, name='page_not_found'),
     path('', include('DocClassifier.urls')), 
     path('', include('DocDeployment.urls')),
     path('', include('DocExtraction.urls')),
@@ -34,6 +35,8 @@ urlpatterns = [
     path('', include('DocPreprocess.urls')), 
     path('', include('DocValidation.urls')),
     path('', include('DocChat.urls')),
+    path('', include('IDP.urls')),
+
 ]
     
 if settings.DEBUG:

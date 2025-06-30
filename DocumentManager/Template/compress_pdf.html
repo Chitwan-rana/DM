@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block main %}
+<div class="container mt-5">
+    <h2 class="mb-4">PDF Compression Tool</h2>
+    
+    {% if error %}
+    <div class="alert alert-danger">
+        {{ error }}
+    </div>
+    {% endif %}
+    
+    {% if success %}
+    <div class="card mb-4">
+        <div class="card-header bg-success text-white">
+            Compression Successful
+        </div>
+        <div class="card-body">
+            <h5 class="card-title">File size comparison:</h5>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card text-center mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">Original Size</h5>
+                            <p class="display-4">{{ original_size_readable }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-center mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">New Size</h5>
+                            <p class="display-4">{{ compressed_size_readable }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-center mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">Space Saved</h5>
+                            <p class="display-4">{{ compression_rate }}%</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center mt-3">
+                <a href="{% url 'download_compressed_pdf' %}" class="btn btn-primary btn-lg">
+                    <i class="bi bi-download"></i> Download Compressed PDF
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="mt-3">
+        <a href="{% url 'compress_pdf' %}" class="btn btn-outline-secondary">Compress Another PDF</a>
+    </div>
+    {% else %}
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            Compress PDF File
+        </div>
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="mb-3">
+                    {{ form.pdf_file.label_tag }}
+                    {{ form.pdf_file }}
+                    <div class="form-text">Select a PDF file to compress.</div>
+                </div>
+                <div class="mb-3">
+                    {{ form.compression_level.label_tag }}
+                    {{ form.compression_level }}
+                    <div class="form-text">{{ form.compression_level.help_text }}</div>
+                </div>
+                <div class="mb-3">
+                    {{ form.output_filename.label_tag }}
+                    {{ form.output_filename }}
+                    <div class="form-text">{{ form.output_filename.help_text }}</div>
+                </div>
+                <button type="submit" class="btn btn-primary">Compress PDF</button>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+    
+    <div class="alert alert-info">
+        <h5>How PDF Compression Works:</h5>
+        <ul>
+            <li><strong>Low compression</strong>: Maintains higher quality but results in larger file size</li>
+            <li><strong>Medium compression</strong>: A balanced approach, suitable for most documents</li>
+            <li><strong>High compression</strong>: Creates smaller files but may reduce quality of images and graphics</li>
+        </ul>
+        <p>Note: Compression works best on PDFs with images. Text-only PDFs may see minimal reduction in size.</p>
+    </div>
+</div>
+{% endblock %}
