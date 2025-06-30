@@ -4,11 +4,11 @@ from django import forms
 import os
 import tempfile
 import PyPDF2
-import google.generativeai as genai
+import google.generativeai as genai #type:ignore
 import logging
 from django.http import HttpResponse, FileResponse
-import pikepdf
-from pikepdf import Pdf
+import pikepdf  #type:ignore
+from pikepdf import Pdf  #type:ignore
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 
