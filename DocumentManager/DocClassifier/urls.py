@@ -1,9 +1,10 @@
 from django.urls import path
-# from .views import view_name
+from . import views
+from .views import reset_data
 
 urlpatterns = [
-#     path('editor/', view_name, name='DocEditor'),
-    # path('download/<str:file_name>/', download_file, name='download_file'),
-    # path('editor/<str:original_file_name>/', download_all, name='editor_download_all'),
-
+    path('classify/', views.classify, name='classify'),
+    path('train/', views.train_model, name='train_model'),
+    path('predict/', views.predict_label, name='predict_label'),
+    path('reset/', reset_data, name='reset_data'),
 ]

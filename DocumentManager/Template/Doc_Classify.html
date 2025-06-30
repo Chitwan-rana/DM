@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block main %}
+<div class="container mt-4">
+
+    <h2 class="text-primary text-center mb-4">Document Classifier</h2>
+
+    <!-- Alert messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Create Label Section -->
+    <div class="card shadow-sm p-4 mb-4">
+        <h3 class="text-secondary mb-3">Create a Label</h3>
+        <form method="post" onsubmit="showSpinner()">
+            {% csrf_token %}
+            {{ label_form.as_p }}
+            <button type="submit" name="create_label" class="btn btn-success">Create Label</button>
+        </form>
+    </div>
+
+    <!-- Upload Images Section -->
+    <div class="card shadow-sm p-4 mb-4">
+        <h3 class="text-secondary mb-3">Upload Images</h3>
+        <form method="post" enctype="multipart/form-data" onsubmit="showSpinner()">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="label" class="form-label">Select Label:</label>
+                <select name="label" id="label" class="form-select" required>
+                    <option value="" selected disabled>Choose a label</option>
+                    {% for label in labels %}
+                        <option value="{{ label.id }}">{{ label.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="images" class="form-label">Upload Images:</label>
+                <input type="file" name="images" id="images" class="form-control" multiple required>
+            </div>
+            <button type="submit" name="upload_images" class="btn btn-primary">Upload</button>
+        </form>
+    </div>
+
+    <!-- Uploaded Images Display -->
+    <div class="card shadow-sm p-4 mb-4">
+        <h3 class="text-secondary mb-3">Uploaded Images</h3>
+        {% if images %}
+            <div class="row">
+                {% for image in images %}
+                    <div class="col-md-3 mb-3">
+                        <div class="card h-100 shadow-sm">
+                            <img src="{{ image.image.url }}" class="card-img-top" alt="{{ image.image.name }}">
+                            <div class="card-body text-center">
+                                <p class="card-text"><strong>{{ image.label.name }}</strong></p>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-muted">No images uploaded yet.</p>
+        {% endif %}
+    </div>
+
+    <!-- Train Model Section -->
+    <div class="text-center mb-4">
+        <form method="post" action="{% url 'train_model' %}" onsubmit="showSpinner()">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-warning" id="trainBtn">
+                <span id="trainSpinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                <span id="trainBtnText">Train Model</span>
+            </button>
+        </form>
+    </div>
+
+    <!-- Reset Data Section -->
+    <div class="text-center mb-4">
+        <form method="post" action="{% url 'reset_data' %}"
+              onsubmit="return confirm('Are you sure you want to delete all data? This action cannot be undone!');">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Reset Data</button>
+        </form>
+    </div>
+
+    <!-- Predict Label Section -->
+    <div class="card shadow-sm p-4 mb-5">
+        <h3 class="text-secondary mb-3">Predict a Label</h3>
+        <form method="post" enctype="multipart/form-data" action="{% url 'predict_label' %}" onsubmit="showSpinner()">
+            {% csrf_token %}
+            <div class="mb-3">
+                <input type="file" name="image" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-danger">Predict</button>
+        </form>
+    </div>
+
+    <!-- Spinner -->
+    <div id="loadingSpinner" class="text-center d-none">
+        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-2">Please wait...</p>
+    </div>
+</div>
+
+<!-- Spinner Script -->
+<script>
+    function showSpinner() {
+        document.getElementById('loadingSpinner').classList.remove('d-none');
+
+        const trainBtn = document.getElementById('trainBtn');
+        if (trainBtn) {
+            trainBtn.disabled = true;
+            document.getElementById('trainSpinner')?.classList.remove('d-none');
+            document.getElementById('trainBtnText').textContent = 'Training...';
+        }
+    }
+</script>
+{% endblock %}

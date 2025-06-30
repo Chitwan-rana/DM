@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block main %}
+<div class="container mt-4">    
+    <h1 class="text-center text-primary">Chat With Your PDF Documents</h1>
+
+    <!-- Upload PDF Files -->
+    <div class="card p-4 shadow-sm mb-4">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+         <div class="mb-3">
+    <label for="pdfInput" class="form-label fw-bold">Upload PDF File:</label>
+    
+    <div class="border border-2 border-dashed rounded p-4 text-center bg-light position-relative" style="cursor: pointer;">
+        <input type="file" name="pdf_files" id="pdfInput" multiple required 
+               class="form-control position-absolute top-0 start-0 w-100 h-100 opacity-0" 
+               style="z-index: 2; cursor: pointer;">
+        
+        <div class="position-relative" style="z-index: 1;">
+            <i class="bi bi-upload fs-1 text-primary"></i>
+            <p class="mb-1">Drag & drop PDF files here, or click to browse</p>
+            <small class="text-muted">Only .pdf files are allowed</small>
+            <div id="fileNames" class="form-text mt-2 text-muted"></div>
+        </div>
+    </div>
+</div>
+
+            <button type="submit" name="upload" class="btn btn-success w-100">Process Document</button>
+
+            <!-- Loading Spinner BELOW the button -->
+            <div id="loadingMessage" class="text-center mt-4" style="display: none;">
+                <div class="spinner-border text-success" role="status">
+                    <span class="visually-hidden">Processing...</span>
+                </div>
+                <p class="mt-2">Processing documents... Please wait.</p>
+            </div>
+        </form>
+    </div>
+
+    {% if message %}
+        <div class="alert alert-success text-center">{{ message }}</div>
+    {% endif %}
+
+    {% if error %}
+        <div class="alert alert-danger text-center">{{ error }}</div>
+    {% endif %}
+
+    <hr>
+
+    <!-- Ask Questions -->
+    <div class="card p-4 shadow-sm mb-4">
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label class="form-label">Ask a Question:</label>
+                <input type="text" name="question" placeholder="Enter Your Question" required class="form-control">
+            </div>
+            <button type="submit" name="ask" class="btn btn-primary w-100">Ask</button>
+        </form>
+    </div>
+
+    {% if response %}
+        <div class="card p-4 shadow-sm">
+            <!-- Moved info ABOVE the response -->
+            {% if question %}
+                <p><strong>Question Asked:</strong> {{ question }}</p>
+            {% endif %}
+
+            {% if pdf_names %}
+                <p><strong>PDF(s) Used:</strong> {{ pdf_names|join:", " }}</p>
+            {% endif %}
+
+            <h2 class="text-success">Response:</h2>
+            <p class="fs-5">{{ response }}</p>
+
+            <p class="text-muted"><strong>Response Time:</strong> {{ response_time }} seconds</p>
+        </div>
+    {% endif %}
+</div>
+
+<!-- JavaScript for showing loading spinner -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const form = document.querySelector('form[method="post"][enctype="multipart/form-data"]');
+        const loadingDiv = document.getElementById("loadingMessage");
+
+        if (form && loadingDiv) {
+            form.addEventListener("submit", function () {
+                loadingDiv.style.display = "block";
+            });
+        }
+    });
+</script>
+
+{% endblock main %}
