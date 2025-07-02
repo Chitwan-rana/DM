@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block main %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h3 class="mb-0">Conversion Successful!</h3>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i> Your PDF has been successfully converted to a searchable format.
+                    </div>
+                    
+                    <div class="mt-4">
+                        <h5>File Details:</h5>
+                        <ul class="list-group">
+                            <li class="list-group-item">Original file: {{ original_filename }}</li>
+                            <li class="list-group-item">Searchable file: {{ searchable_filename }}</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="mt-4 text-center">
+                        <a href="{% url 'download_searchable_pdf' %}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-download"></i> Download Searchable PDF
+                        </a>
+                    </div>
+                    
+                    <div class="mt-4 text-center">
+                        <a href="{% url 'convert_pdf' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> Convert Another PDF
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

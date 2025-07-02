@@ -11,121 +11,18 @@ import pikepdf  #type:ignore
 from pikepdf import Pdf  #type:ignore
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
+from django.shortcuts import  redirect
+from django.core.files.storage import FileSystemStorage
+from django.contrib import messages
+
+import os
+import tempfile
+import uuid
+import ocrmypdf #type: ignore
+from pathlib import Path
 
 logger = logging.getLogger(__name__)
      
-class SummarizationForm(forms.Form):
-    pdf_file = forms.FileField(label='Select a PDF file')
-    SUMMARY_CHOICES = [
-        ('very_short', 'Very Short (about 100 words)'),
-        ('short', 'Short (about 250 words)'),
-        ('medium', 'Medium (about 500 words)'),
-        ('long', 'Long (about 1000 words)'),
-        ('very_long', 'Very Long (about 2000 words)'),
-    ]
-    summary_length = forms.ChoiceField(choices=SUMMARY_CHOICES, label='Summary Length', initial='medium')
-
-def extract_text_from_pdf(pdf_file):
-    """Extract text from a PDF file."""
-    try:
-        with tempfile.NamedTemporaryFile(delete=False) as temp_file:
-            for chunk in pdf_file.chunks():
-                temp_file.write(chunk)
-            temp_file_path = temp_file.name
-        
-        text = ""
-        with open(temp_file_path, 'rb') as file:
-            pdf_reader = PyPDF2.PdfReader(file)
-            for page_num in range(len(pdf_reader.pages)):
-                page_text = pdf_reader.pages[page_num].extract_text()
-                if page_text:
-                    text += page_text + "\n"
-        
-        os.unlink(temp_file_path)  # Delete the temporary file
-        return text
-    except Exception as e:
-        logger.error(f"Error extracting PDF text: {str(e)}")
-        return None
-
-def get_summary_params(length_option):
-    """Get summary parameters based on selected length option."""
-    params = {
-        'very_short': {'max_words': 100, 'prompt': 'Provide a very brief summary in about 100 words.'},
-        'short': {'max_words': 250, 'prompt': 'Provide a short summary in about 250 words.'},
-        'medium': {'max_words': 500, 'prompt': 'Provide a comprehensive summary in about 500 words.'},
-        'long': {'max_words': 1000, 'prompt': 'Provide a detailed summary in about 1000 words.'},
-        'very_long': {'max_words': 2000, 'prompt': 'Provide a very detailed summary in about 2000 words.'},
-    }
-    return params.get(length_option, params['medium'])
-
-def summarize_text(text, summary_params):
-    """Use generative AI to summarize text."""
-    try:
-        # Configure generative AI
-        genai.configure(api_key=settings.GENAI_API_KEY)
-        model = genai.GenerativeModel('gemini-1.0-pro')
-        
-        # Create prompt for summarization
-        prompt = f"""
-        Summarize the following text. {summary_params['prompt']}:
-        
-        {text}
-        """
-        
-        # Generate summary
-        response = model.generate_content(prompt)
-        return response.text
-    except Exception as e:
-        logger.error(f"Error generating summary: {str(e)}")
-        return None
-
-def summarize_pdf(request):
-    """View to summarize PDF using generative AI."""
-    context = {
-        'form': SummarizationForm(),
-        'summary': None,
-        'original_text': None,
-        'original_word_count': 0,
-        'summary_word_count': 0,
-        'error': None,
-    }
-    
-    if request.method == 'POST':
-        form = SummarizationForm(request.POST, request.FILES)
-        context['form'] = form
-        
-        if form.is_valid():
-            try:
-                pdf_file = request.FILES['pdf_file']
-                summary_length = form.cleaned_data['summary_length']
-                
-                # Extract text from PDF
-                original_text = extract_text_from_pdf(pdf_file)
-                if not original_text:
-                    context['error'] = "Could not extract text from the PDF. The file might be corrupted or password-protected."
-                    return render(request, 'summarize_pdf.html', context)
-                
-                context['original_text'] = original_text
-                context['original_word_count'] = len(original_text.split())
-                
-                # Get summary parameters based on selected length
-                summary_params = get_summary_params(summary_length)
-                
-                # Generate summary
-                summary = summarize_text(original_text, summary_params)
-                if not summary:
-                    context['error'] = "Failed to generate summary. Please try again later."
-                    return render(request, 'summarize_pdf.html', context)
-                
-                context['summary'] = summary
-                context['summary_word_count'] = len(summary.split())
-            
-            except Exception as e:
-                logger.error(f"Error in summarize_pdf view: {str(e)}")
-                context['error'] = f"An error occurred: {str(e)}"
-    
-    return render(request, 'summarize_pdf.html', context)
-
 ## MERGE PDFs
 
 class PDFMergeForm(forms.Form):
@@ -205,7 +102,7 @@ def merge_pdfs_view(request):
                 merged_pdf_content = merge_pdfs(pdf_file1, pdf_file2)
                 if not merged_pdf_content:
                     context['error'] = "Failed to merge the PDF files. Please try again."
-                    return render(request, 'merge_pdfs.html', context)
+                    return render(request, 'IDP/Merge/merge_pdfs.html', context)
                 
                 # Create the HTTP response with the merged PDF
                 response = HttpResponse(merged_pdf_content, content_type='application/pdf')
@@ -216,7 +113,7 @@ def merge_pdfs_view(request):
                 logger.error(f"Error in merge_pdfs_view: {str(e)}")
                 context['error'] = f"An error occurred: {str(e)}"
     
-    return render(request, 'merge_pdfs.html', context)
+    return render(request, 'IDP/Merge/merge_pdfs.html', context)
 
 
 ## COMPRESS PDFs
@@ -320,13 +217,13 @@ def compress_pdf_view(request):
                 # Check file size
                 if pdf_file.size > 100 * 1024 * 1024:  # 100MB limit
                     context['error'] = "File is too large. Maximum file size is 100MB."
-                    return render(request, 'compress_pdf.html', context)
+                    return render(request, 'IDP/Compress/compress_pdf.html', context)
                 
                 # Compress the PDF
                 compression_result = compress_pdf(pdf_file, compression_level)
                 if not compression_result:
                     context['error'] = "Failed to compress the PDF. Please try again."
-                    return render(request, 'compress_pdf.html', context)
+                    return render(request, 'IDP/Compress/compress_pdf.html', context)
                 
                 # Store the compressed content in the session
                 request.session['compressed_pdf'] = compression_result['content'].hex()
@@ -359,7 +256,7 @@ def compress_pdf_view(request):
                 logger.error(f"Error in compress_pdf_view: {str(e)}")
                 context['error'] = f"An error occurred: {str(e)}"
     
-    return render(request, 'compress_pdf.html', context)
+    return render(request, 'IDP/Compress/compress_pdf.html', context)
 
 def download_compressed_pdf(request):
     """Download the compressed PDF file."""
@@ -498,7 +395,7 @@ def split_pdf_view(request):
                 # Check file size
                 if pdf_file.size > 100 * 1024 * 1024:  # 100MB limit
                     context['error'] = "File is too large. Maximum file size is 100MB."
-                    return render(request, 'split_pdf.html', context)
+                    return render(request, 'IDP/Split/split_pdf.html', context)
                 
                 # Get total pages first
                 with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as temp_file:
@@ -518,17 +415,17 @@ def split_pdf_view(request):
                 # Validate page range
                 if start_page < 1 or start_page > total_pages:
                     context['error'] = f"Invalid start page. Please specify a page between 1 and {total_pages}."
-                    return render(request, 'split_pdf.html', context)
+                    return render(request, 'IDP/Split/split_pdf.html', context)
                 
                 if end_page < start_page or end_page > total_pages:
                     context['error'] = f"Invalid end page. Please specify a page between {start_page} and {total_pages}."
-                    return render(request, 'split_pdf.html', context)
+                    return render(request, 'IDP/Split/split_pdf.html', context)
                 
                 # Split the PDF
                 split_content = split_pdf(pdf_file, start_page, end_page)
                 if not split_content:
                     context['error'] = "Failed to split the PDF. Please try again."
-                    return render(request, 'split_pdf.html', context)
+                    return render(request, 'IDP/Split/split_pdf.html', context)
                 
                 # Store the split PDF content in the session
                 request.session['split_pdf'] = split_content.hex()
@@ -545,7 +442,7 @@ def split_pdf_view(request):
                 logger.error(f"Error in split_pdf_view: {str(e)}")
                 context['error'] = f"An error occurred: {str(e)}"
     
-    return render(request, 'split_pdf.html', context)
+    return render(request, 'IDP/Split/split_pdf.html', context)
 
 
 def download_split_pdf(request):
@@ -566,3 +463,77 @@ def download_split_pdf(request):
     del request.session['output_filename']
     
     return response
+
+#Convert PDF to Searchable Format
+
+def convert_pdf(request):
+    """Process the uploaded PDF and convert to searchable format"""
+    if request.method == 'POST' and request.FILES.get('pdf_file'):
+        # Get the uploaded file
+        pdf_file = request.FILES['pdf_file']
+        
+        # Validate file is PDF
+        if not pdf_file.name.endswith('.pdf'):
+            messages.error(request, "Please upload a PDF file.")
+            return render(request, 'IDP/Searchable/Searchable.html')
+            
+        # Create a unique filename
+        unique_id = uuid.uuid4().hex
+        original_filename = pdf_file.name
+        base_name = os.path.splitext(original_filename)[0]
+        
+        # Create temp directory if it doesn't exist
+        temp_dir = os.path.join(settings.MEDIA_ROOT, 'temp_pdfs')
+        os.makedirs(temp_dir, exist_ok=True)
+        
+        # Save paths
+        input_path = os.path.join(temp_dir, f"{unique_id}_input.pdf")
+        output_path = os.path.join(temp_dir, f"{unique_id}_searchable.pdf")
+        
+        # Save the uploaded file
+        fs = FileSystemStorage(location=temp_dir)
+        fs.save(f"{unique_id}_input.pdf", pdf_file)
+        
+        try:
+            # Convert PDF using OCRmyPDF
+            ocrmypdf.ocr(input_path, output_path, deskew=True)
+            
+            # Store the output path in the session for download
+            request.session['output_pdf_path'] = output_path
+            request.session['output_filename'] = f"{base_name}_searchable.pdf"
+            
+            return render(request, 'IDP/Searchable/success.html', {
+                'original_filename': original_filename,
+                'searchable_filename': f"{base_name}_searchable.pdf"
+            })
+            
+        except Exception as e:
+            # Clean up files
+            if os.path.exists(input_path):
+                os.remove(input_path)
+            if os.path.exists(output_path):
+                os.remove(output_path)
+                
+            messages.error(request, f"Error processing PDF: {str(e)}")
+            return render(request, 'IDP/Searchable/Searchable.html')
+    else:
+        return render(request, 'IDP/Searchable/Searchable.html')
+
+def download_searchable_pdf(request):
+    """Download the converted searchable PDF"""
+    if 'output_pdf_path' in request.session and os.path.exists(request.session['output_pdf_path']):
+        output_path = request.session['output_pdf_path']
+        filename = request.session['output_filename']
+        
+        # Serve the file
+        response = FileResponse(open(output_path, 'rb'), 
+                              content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        
+        # Clean up after sending (optional - you might want to keep files for caching)
+        # os.remove(output_path)
+        
+        return response
+    else:
+        messages.error(request, "File not found or processing error occurred.")
+        return render(request, 'IDP/Searchable/Searchable.html')
