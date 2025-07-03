@@ -5,15 +5,7 @@ import tempfile
 import PyPDF2
 import google.generativeai as genai #type:ignore
 import logging
-from django.http import HttpResponse, FileResponse
-import pikepdf  #type:ignore
-from pikepdf import Pdf  #type:ignore
-from django.core.files.storage import default_storage
-from django.core.files.base import ContentFile
-from django.shortcuts import  redirect
-from django.core.files.storage import FileSystemStorage
-from django.contrib import messages
-
+import mimetypes
 import io
 import fitz  # PyMuPDF
 import json
@@ -22,6 +14,21 @@ import tempfile
 import uuid
 import ocrmypdf #type: ignore
 from pathlib import Path
+from django.http import HttpResponse, FileResponse
+import pikepdf  #type:ignore
+from pikepdf import Pdf  #type:ignore
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
+from django.shortcuts import  redirect
+from django.core.files.storage import FileSystemStorage
+from django.contrib import messages
+from django.shortcuts import render
+from django.http import HttpResponse, JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
+from pdf2docx import Converter #type:ignore
+
 
 logger = logging.getLogger(__name__)
      
@@ -620,3 +627,96 @@ def redact_confirm(request):
     doc.save(output)
     output.seek(0)
     return FileResponse(output, as_attachment=True, filename="redacted.pdf")
+
+# Convert PDF to DOCX
+
+def convert_pdf_view(request):
+    """Display the PDF to Word conversion page"""
+    return render(request, 'IDP/PDF_TO_DOCX/pdf_to_docx.html')
+
+@csrf_exempt
+def upload_pdf(request):
+    """Handle PDF upload and return URL for preview"""
+    if request.method == 'POST' and request.FILES.get('pdf_file'):
+        try:
+            pdf_file = request.FILES['pdf_file']
+            
+            # Validate file type
+            if not pdf_file.name.lower().endswith('.pdf'):
+                return JsonResponse({'error': 'Please upload a valid PDF file'}, status=400)
+            
+            # Generate unique filename
+            unique_id = uuid.uuid4().hex
+            filename = f"{unique_id}_{pdf_file.name}"
+            
+            # Create media directory if it doesn't exist
+            upload_dir = os.path.join(settings.MEDIA_ROOT, 'uploads')
+            os.makedirs(upload_dir, exist_ok=True)
+            
+            # Save the file to disk for preview
+            pdf_path = os.path.join('uploads', filename)
+            full_path = os.path.join(settings.MEDIA_ROOT, pdf_path)
+            
+            with open(full_path, 'wb+') as destination:
+                for chunk in pdf_file.chunks():
+                    destination.write(chunk)
+            
+            # Generate URL for preview
+            pdf_url = f"{settings.MEDIA_URL}{pdf_path}"
+            
+            return JsonResponse({
+                'success': True,
+                'pdf_url': pdf_url,
+                'pdf_id': unique_id,
+                'pdf_name': pdf_file.name,
+                'pdf_path': pdf_path
+            })
+            
+        except Exception as e:
+            return JsonResponse({'error': f'Upload failed: {str(e)}'}, status=500)
+    
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+
+@csrf_exempt
+def convert_pdf_to_docx(request):
+    """Handle PDF to Word conversion"""
+    if request.method == 'POST':
+        try:
+            pdf_path = request.POST.get('pdf_path')
+            
+            if not pdf_path:
+                return JsonResponse({'error': 'No PDF file specified'}, status=400)
+            
+            # Generate path for the output DOCX file
+            pdf_filename = os.path.basename(pdf_path)
+            output_filename = os.path.splitext(pdf_filename)[0].split('_', 1)[1] + '.docx'
+            unique_id = uuid.uuid4().hex
+            docx_filename = f"{unique_id}_{output_filename}"
+            
+            # Create converted directory if it doesn't exist
+            converted_dir = os.path.join(settings.MEDIA_ROOT, 'converted')
+            os.makedirs(converted_dir, exist_ok=True)
+            
+            # Set paths for conversion
+            pdf_full_path = os.path.join(settings.MEDIA_ROOT, pdf_path)
+            docx_path = os.path.join('converted', docx_filename)
+            docx_full_path = os.path.join(settings.MEDIA_ROOT, docx_path)
+            
+            # Convert PDF to DOCX
+            cv = Converter(pdf_full_path)
+            cv.convert(docx_full_path)
+            cv.close()
+            
+            # Generate URL for the converted file
+            docx_url = f"{settings.MEDIA_URL}{docx_path}"
+            
+            return JsonResponse({
+                'success': True,
+                'docx_url': docx_url,
+                'docx_filename': output_filename
+            })
+            
+        except Exception as e:
+            return JsonResponse({'error': f'Conversion failed: {str(e)}'}, status=500)
+    
+    return JsonResponse({'error': 'Invalid request'}, status=400)

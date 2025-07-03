@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PDF to Word Converter</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #fff;
+      color: #000;
+      padding: 30px;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    p {
+      color: #444;
+      font-size: 14px;
+    }
+
+    .form-section {
+      margin-top: 30px;
+      border: 1px solid #ccc;
+      padding: 20px;
+      border-radius: 8px;
+    }
+
+    .file-input {
+      margin-top: 15px;
+      margin-bottom: 15px;
+    }
+
+    .button {
+      background: #007bff;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .button:disabled {
+      background: #aaa;
+    }
+
+    .download {
+      background: #28a745;
+      margin-left: 10px;
+      text-decoration: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      color: white;
+      display: none;
+    }
+
+    .message {
+      margin-top: 15px;
+      padding: 10px;
+      border-radius: 4px;
+      display: none;
+    }
+
+    .error {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    .success {
+      background: #d4edda;
+      color: #155724;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>PDF to Word Converter</h1>
+    <p>Select a PDF file and convert it to an editable Word document.</p>
+
+    <form id="uploadForm" class="form-section" enctype="multipart/form-data">
+      {% csrf_token %}
+      <label for="pdf_file">Choose PDF file:</label><br />
+      <input type="file" id="pdf_file" name="pdf_file" accept=".pdf" class="file-input" required />
+      <br />
+
+      <button type="submit" id="uploadBtn" class="button">Upload PDF</button>
+      <button type="button" id="convertBtn" class="button">Convert to Word</button>
+      <a id="downloadBtn" href="#" class="download" download>Download Word</a>
+
+      <div id="errorMessage" class="message error"></div>
+      <div id="successMessage" class="message success"></div>
+    </form>
+  </div>
+
+  <script>
+    const fileInput = document.getElementById('pdf_file');
+    const uploadForm = document.getElementById('uploadForm');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const convertBtn = document.getElementById('convertBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const errorMessage = document.getElementById('errorMessage');
+    const successMessage = document.getElementById('successMessage');
+
+    let currentPdfPath = null;
+
+    function showError(msg) {
+      errorMessage.textContent = msg;
+      errorMessage.style.display = 'block';
+      successMessage.style.display = 'none';
+    }
+
+    function showSuccess(msg) {
+      successMessage.textContent = msg;
+      successMessage.style.display = 'block';
+      errorMessage.style.display = 'none';
+    }
+
+    function hideMessages() {
+      errorMessage.style.display = 'none';
+      successMessage.style.display = 'none';
+    }
+
+    uploadForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      hideMessages();
+
+      const file = fileInput.files[0];
+      if (!file || !file.name.toLowerCase().endsWith('.pdf')) {
+        showError('Please select a valid PDF file.');
+        return;
+      }
+
+      uploadBtn.disabled = true;
+      const formData = new FormData();
+      formData.append('pdf_file', file);
+      formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+
+      fetch('/upload/', {
+        method: 'POST',
+        body: formData,
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success) {
+            currentPdfPath = data.pdf_path;
+            showSuccess('PDF uploaded successfully!');
+            downloadBtn.style.display = 'none';
+          } else {
+            showError(data.error || 'Upload failed.');
+          }
+        })
+        .catch((err) => showError(err.message || 'Upload error occurred.'))
+        .finally(() => (uploadBtn.disabled = false));
+    });
+
+    convertBtn.addEventListener('click', function () {
+      hideMessages();
+      if (!currentPdfPath) {
+        showError('Please upload a PDF first.');
+        return;
+      }
+
+      convertBtn.disabled = true;
+      const formData = new FormData();
+      formData.append('pdf_path', currentPdfPath);
+      formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+
+      fetch('/pdf_to_docx/', {
+        method: 'POST',
+        body: formData,
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success) {
+            downloadBtn.href = data.docx_url;
+            downloadBtn.download = data.docx_filename;
+            downloadBtn.style.display = 'inline-block';
+            showSuccess('Conversion successful! Download your Word file.');
+          } else {
+            showError(data.error || 'Conversion failed.');
+          }
+        })
+        .catch((err) => showError(err.message || 'Conversion error occurred.'))
+        .finally(() => (convertBtn.disabled = false));
+    });
+  </script>
+</body>
+</html>
