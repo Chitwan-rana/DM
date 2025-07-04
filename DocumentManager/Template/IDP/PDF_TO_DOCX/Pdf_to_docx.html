@@ -1,197 +1,160 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>PDF to Word Converter</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      background: #fff;
-      color: #000;
-      padding: 30px;
-    }
+{% extends 'base.html' %}
+{% load static %}
 
-    .container {
-      max-width: 600px;
-      margin: 0 auto;
-    }
+{% block title %}PDF to Word Converter{% endblock %}
 
-    h1 {
-      font-size: 24px;
-      margin-bottom: 10px;
-    }
+{% block main %}
+<div class="container py-5">
+  <div class="mx-auto" style="max-width: 600px;">
+    <h2 class="mb-3 text-center"><i class="bi bi-file-earmark-word-fill text-primary"></i> PDF to Word Converter</h2>
+    <p class="text-muted text-center">Upload a PDF and convert it into an editable Word document.</p>
 
-    p {
-      color: #444;
-      font-size: 14px;
-    }
-
-    .form-section {
-      margin-top: 30px;
-      border: 1px solid #ccc;
-      padding: 20px;
-      border-radius: 8px;
-    }
-
-    .file-input {
-      margin-top: 15px;
-      margin-bottom: 15px;
-    }
-
-    .button {
-      background: #007bff;
-      color: #fff;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 4px;
-      font-size: 14px;
-      cursor: pointer;
-    }
-
-    .button:disabled {
-      background: #aaa;
-    }
-
-    .download {
-      background: #28a745;
-      margin-left: 10px;
-      text-decoration: none;
-      padding: 10px 20px;
-      border-radius: 4px;
-      color: white;
-      display: none;
-    }
-
-    .message {
-      margin-top: 15px;
-      padding: 10px;
-      border-radius: 4px;
-      display: none;
-    }
-
-    .error {
-      background: #f8d7da;
-      color: #721c24;
-    }
-
-    .success {
-      background: #d4edda;
-      color: #155724;
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h1>PDF to Word Converter</h1>
-    <p>Select a PDF file and convert it to an editable Word document.</p>
-
-    <form id="uploadForm" class="form-section" enctype="multipart/form-data">
+    <form id="uploadForm" class="border p-4 rounded shadow-sm bg-white" enctype="multipart/form-data">
       {% csrf_token %}
-      <label for="pdf_file">Choose PDF file:</label><br />
-      <input type="file" id="pdf_file" name="pdf_file" accept=".pdf" class="file-input" required />
-      <br />
 
-      <button type="submit" id="uploadBtn" class="button">Upload PDF</button>
-      <button type="button" id="convertBtn" class="button">Convert to Word</button>
-      <a id="downloadBtn" href="#" class="download" download>Download Word</a>
+      <div class="mb-3">
+        <label for="pdf_file" class="form-label">Choose a PDF file</label>
+        <input type="file" id="pdf_file" name="pdf_file" class="form-control" accept=".pdf" required />
+        <div class="form-text" id="fileNameDisplay" style="color: #555; display: none;"></div>
+      </div>
 
-      <div id="errorMessage" class="message error"></div>
-      <div id="successMessage" class="message success"></div>
+      <div class="d-flex flex-wrap gap-2 mt-3">
+        <button type="submit" id="uploadBtn" class="btn btn-outline-primary">
+          <span id="uploadBtnText"><i class="bi bi-upload"></i> Upload PDF</span>
+          <span class="spinner-border spinner-border-sm d-none" role="status" id="uploadSpinner"></span>
+        </button>
+
+        <button type="button" id="convertBtn" class="btn btn-outline-success">
+          <span id="convertBtnText"><i class="bi bi-arrow-right-circle"></i> Convert to Word</span>
+          <span class="spinner-border spinner-border-sm d-none" role="status" id="convertSpinner"></span>
+        </button>
+
+        <a id="downloadBtn" href="#" class="btn btn-success ms-auto d-none" download>
+          <i class="bi bi-download"></i> Download Word
+        </a>
+      </div>
+
+      <div id="errorMessage" class="alert alert-danger mt-3 d-none" role="alert"></div>
+      <div id="successMessage" class="alert alert-success mt-3 d-none" role="alert"></div>
     </form>
   </div>
+</div>
 
-  <script>
-    const fileInput = document.getElementById('pdf_file');
-    const uploadForm = document.getElementById('uploadForm');
-    const uploadBtn = document.getElementById('uploadBtn');
-    const convertBtn = document.getElementById('convertBtn');
-    const downloadBtn = document.getElementById('downloadBtn');
-    const errorMessage = document.getElementById('errorMessage');
-    const successMessage = document.getElementById('successMessage');
+<script>
+  const fileInput = document.getElementById('pdf_file');
+  const fileNameDisplay = document.getElementById('fileNameDisplay');
+  const uploadForm = document.getElementById('uploadForm');
+  const uploadBtn = document.getElementById('uploadBtn');
+  const convertBtn = document.getElementById('convertBtn');
+  const downloadBtn = document.getElementById('downloadBtn');
+  const errorMessage = document.getElementById('errorMessage');
+  const successMessage = document.getElementById('successMessage');
+  const uploadSpinner = document.getElementById('uploadSpinner');
+  const convertSpinner = document.getElementById('convertSpinner');
 
-    let currentPdfPath = null;
+  let currentPdfPath = null;
 
-    function showError(msg) {
-      errorMessage.textContent = msg;
-      errorMessage.style.display = 'block';
-      successMessage.style.display = 'none';
+  // Show file name when user selects a file
+  fileInput.addEventListener('change', () => {
+    const file = fileInput.files[0];
+    if (file) {
+      fileNameDisplay.textContent = `Selected file: ${file.name}`;
+      fileNameDisplay.style.display = 'block';
+    } else {
+      fileNameDisplay.style.display = 'none';
+    }
+  });
+
+  function showError(msg) {
+    errorMessage.textContent = msg;
+    errorMessage.classList.remove('d-none');
+    successMessage.classList.add('d-none');
+  }
+
+  function showSuccess(msg) {
+    successMessage.textContent = msg;
+    successMessage.classList.remove('d-none');
+    errorMessage.classList.add('d-none');
+  }
+
+  function hideMessages() {
+    errorMessage.classList.add('d-none');
+    successMessage.classList.add('d-none');
+  }
+
+  uploadForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    hideMessages();
+
+    const file = fileInput.files[0];
+    if (!file || !file.name.toLowerCase().endsWith('.pdf')) {
+      showError('Please select a valid PDF file.');
+      return;
     }
 
-    function showSuccess(msg) {
-      successMessage.textContent = msg;
-      successMessage.style.display = 'block';
-      errorMessage.style.display = 'none';
-    }
+    uploadBtn.disabled = true;
+    uploadSpinner.classList.remove('d-none');
 
-    function hideMessages() {
-      errorMessage.style.display = 'none';
-      successMessage.style.display = 'none';
-    }
+    const formData = new FormData();
+    formData.append('pdf_file', file);
+    formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
 
-    uploadForm.addEventListener('submit', function (e) {
-      e.preventDefault();
-      hideMessages();
-
-      const file = fileInput.files[0];
-      if (!file || !file.name.toLowerCase().endsWith('.pdf')) {
-        showError('Please select a valid PDF file.');
-        return;
-      }
-
-      uploadBtn.disabled = true;
-      const formData = new FormData();
-      formData.append('pdf_file', file);
-      formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
-
-      fetch('/upload/', {
-        method: 'POST',
-        body: formData,
+    fetch('/upload/', {
+      method: 'POST',
+      body: formData,
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          currentPdfPath = data.pdf_path;
+          showSuccess('PDF uploaded successfully!');
+          downloadBtn.classList.add('d-none');
+        } else {
+          showError(data.error || 'Upload failed.');
+        }
       })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.success) {
-            currentPdfPath = data.pdf_path;
-            showSuccess('PDF uploaded successfully!');
-            downloadBtn.style.display = 'none';
-          } else {
-            showError(data.error || 'Upload failed.');
-          }
-        })
-        .catch((err) => showError(err.message || 'Upload error occurred.'))
-        .finally(() => (uploadBtn.disabled = false));
-    });
+      .catch((err) => showError(err.message || 'Upload error occurred.'))
+      .finally(() => {
+        uploadBtn.disabled = false;
+        uploadSpinner.classList.add('d-none');
+      });
+  });
 
-    convertBtn.addEventListener('click', function () {
-      hideMessages();
-      if (!currentPdfPath) {
-        showError('Please upload a PDF first.');
-        return;
-      }
+  convertBtn.addEventListener('click', function () {
+    hideMessages();
 
-      convertBtn.disabled = true;
-      const formData = new FormData();
-      formData.append('pdf_path', currentPdfPath);
-      formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+    if (!currentPdfPath) {
+      showError('Please upload a PDF first.');
+      return;
+    }
 
-      fetch('/pdf_to_docx/', {
-        method: 'POST',
-        body: formData,
+    convertBtn.disabled = true;
+    convertSpinner.classList.remove('d-none');
+
+    const formData = new FormData();
+    formData.append('pdf_path', currentPdfPath);
+    formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+
+    fetch('/pdf_to_docx/', {
+      method: 'POST',
+      body: formData,
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          downloadBtn.href = data.docx_url;
+          downloadBtn.download = data.docx_filename;
+          downloadBtn.classList.remove('d-none');
+          showSuccess('Conversion successful! You can download the Word file.');
+        } else {
+          showError(data.error || 'Conversion failed.');
+        }
       })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.success) {
-            downloadBtn.href = data.docx_url;
-            downloadBtn.download = data.docx_filename;
-            downloadBtn.style.display = 'inline-block';
-            showSuccess('Conversion successful! Download your Word file.');
-          } else {
-            showError(data.error || 'Conversion failed.');
-          }
-        })
-        .catch((err) => showError(err.message || 'Conversion error occurred.'))
-        .finally(() => (convertBtn.disabled = false));
-    });
-  </script>
-</body>
-</html>
+      .catch((err) => showError(err.message || 'Conversion error occurred.'))
+      .finally(() => {
+        convertBtn.disabled = false;
+        convertSpinner.classList.add('d-none');
+      });
+  });
+</script>
+{% endblock %}
