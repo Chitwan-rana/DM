@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import merge_pdfs_view,compress_pdf_view,download_compressed_pdf,split_pdf_view,download_split_pdf,convert_pdf,download_searchable_pdf,redact_confirm,redact,upload_pdf,convert_pdf_to_docx,convert_pdf_view
+from .views import merge_pdfs_view,compress_pdf_view,download_compressed_pdf,split_pdf_view,download_split_pdf,convert_pdf,download_searchable_pdf,redact_confirm,redact,upload_pdf,convert_pdf_to_docx,convert_pdf_view,download_split_pdf_view
 
 urlpatterns = [
      # PDF MERGE
@@ -10,6 +10,7 @@ urlpatterns = [
      # PDF SPLIT
      path('split-pdf/', split_pdf_view, name='split_pdf'),
      path('download-split-pdf/', download_split_pdf, name='download_split_pdf'),
+     path('split/result/', download_split_pdf_view, name='download_split_pdf_page'),
      # PDF SEARCHABLE
      path('convert/', convert_pdf, name='convert_pdf'),
      path('download-searchable-pdf/',download_searchable_pdf, name='download_searchable_pdf'),

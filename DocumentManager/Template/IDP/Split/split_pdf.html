@@ -17,36 +17,6 @@
                     </div>
                     {% endif %}
 
-                    {% if success %}
-                    <div class="alert alert-success" role="alert">
-                        <i class="fas fa-check-circle me-2"></i>PDF successfully split!
-                    </div>
-                    <div class="card mb-4">
-                        <div class="card-body">
-                            <h5 class="card-title">PDF Split Details</h5>
-                            <ul class="list-group list-group-flush">
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    Total Pages
-                                    <span class="badge bg-primary rounded-pill">{{ total_pages }}</span>
-                                </li>
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    Pages Extracted
-                                    <span class="badge bg-primary rounded-pill">{{ start_page }} to {{ end_page }}</span>
-                                </li>
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    Output Filename
-                                    <span class="badge bg-secondary rounded-pill">{{ output_filename }}</span>
-                                </li>
-                            </ul>
-                        </div>
-                        <div class="card-footer text-center">
-                            <a href="{% url 'download_split_pdf' %}" class="btn btn-success">
-                                <i class="fas fa-download me-2"></i>Download Split PDF
-                            </a>
-                        </div>
-                    </div>
-                    {% endif %}
-
                     <form method="post" enctype="multipart/form-data">
                         {% csrf_token %}
                         
@@ -96,8 +66,9 @@
                         </div>
                         
                         <div class="d-grid">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-cut me-2"></i>Split PDF
+                            <button type="submit" class="btn btn-primary" id="submit-button">
+                                <span id="button-text"><i class="fas fa-cut me-2"></i>Split PDF</span>
+                                <span id="button-spinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
                             </button>
                         </div>
                     </form>
@@ -111,7 +82,6 @@
                 </div>
             </div>
             
-            <!-- Instructions card -->
             <div class="card mt-4 shadow">
                 <div class="card-header bg-secondary text-white">
                     <h4 class="mb-0"><i class="fas fa-question-circle me-2"></i>How to Split a PDF</h4>
@@ -123,7 +93,7 @@
                         <li>Enter the <strong>End Page</strong> number (the last page you want to include).</li>
                         <li>Customize the output filename if desired.</li>
                         <li>Click the <strong>Split PDF</strong> button.</li>
-                        <li>When processing is complete, click <strong>Download Split PDF</strong> to save the result.</li>
+                        <li>You will be redirected to download the result.</li>
                     </ol>
                 </div>
             </div>
@@ -133,13 +103,61 @@
 
 {% if form.media %}{{ form.media }}{% endif %}
 
-<!-- Script to add Bootstrap classes to form elements -->
+<!-- PDF.js (client-side PDF page counter) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        document.getElementById('id_pdf_file').classList.add('form-control');
-        document.getElementById('id_start_page').classList.add('form-control');
-        document.getElementById('id_end_page').classList.add('form-control');
-        document.getElementById('id_output_filename').classList.add('form-control');
+    document.addEventListener('DOMContentLoaded', function () {
+        const pdfInput = document.getElementById('id_pdf_file');
+        const startPageInput = document.getElementById('id_start_page');
+        const endPageInput = document.getElementById('id_end_page');
+        const outputFilenameInput = document.getElementById('id_output_filename');
+        const submitButton = document.getElementById('submit-button');
+        const buttonText = document.getElementById('button-text');
+        const buttonSpinner = document.getElementById('button-spinner');
+        const form = document.querySelector('form');
+
+        [pdfInput, startPageInput, endPageInput, outputFilenameInput].forEach(el => {
+            el.classList.add('form-control');
+        });
+
+        let totalPages = 0;
+
+        pdfInput.addEventListener('change', function (event) {
+            const file = event.target.files[0];
+            if (!file || file.type !== 'application/pdf') return;
+
+            const fileReader = new FileReader();
+            fileReader.onload = function () {
+                const typedarray = new Uint8Array(this.result);
+                pdfjsLib.getDocument(typedarray).promise.then(function (pdf) {
+                    totalPages = pdf.numPages;
+                    startPageInput.value = 1;
+                    endPageInput.value = totalPages;
+                    validatePageInputs();
+                });
+            };
+            fileReader.readAsArrayBuffer(file);
+        });
+
+        function validatePageInputs() {
+            const start = parseInt(startPageInput.value);
+            const end = parseInt(endPageInput.value);
+            const isValid = (
+                !isNaN(start) && !isNaN(end) &&
+                start >= 1 && end >= start && end <= totalPages
+            );
+            submitButton.disabled = !isValid;
+        }
+
+        startPageInput.addEventListener('input', validatePageInputs);
+        endPageInput.addEventListener('input', validatePageInputs);
+
+        form.addEventListener('submit', function () {
+            submitButton.disabled = true;
+            buttonText.classList.add('d-none');
+            buttonSpinner.classList.remove('d-none');
+        });
     });
 </script>
 {% endblock %}
