@@ -1,42 +1,47 @@
 {% extends 'base.html' %}
 
+{% block title %}Merge PDF{% endblock %}
+
 {% block main %}
 <div class="container mt-5">
     <h2 class="mb-4">PDF Merger Tool</h2>
-    
+
     {% if error %}
     <div class="alert alert-danger">
         {{ error }}
     </div>
     {% endif %}
-    
+
     <div class="card mb-4">
         <div class="card-header bg-primary text-white">
             Merge PDF Files
         </div>
         <div class="card-body">
-            <form method="post" enctype="multipart/form-data">
+            <form method="post" enctype="multipart/form-data" id="mergeForm">
                 {% csrf_token %}
                 <div class="mb-3">
                     {{ form.pdf_file1.label_tag }}
                     {{ form.pdf_file1 }}
-                    <div class="form-text">Select the first PDF file to merge.</div>
+                    <div class="form-text">Select the first PDF file to merge. Max size: 250MB.</div>
                 </div>
                 <div class="mb-3">
                     {{ form.pdf_file2.label_tag }}
                     {{ form.pdf_file2 }}
-                    <div class="form-text">Select the second PDF file to merge.</div>
+                    <div class="form-text">Select the second PDF file to merge. Max size: 250MB.</div>
                 </div>
                 <div class="mb-3">
                     {{ form.output_filename.label_tag }}
                     {{ form.output_filename }}
                     <div class="form-text">{{ form.output_filename.help_text }}</div>
                 </div>
-                <button type="submit" class="btn btn-primary">Merge PDFs</button>
+                <button type="submit" class="btn btn-primary" id="submitBtn">
+                    <span id="btnText"><i class="fas fa-file-merge me-2"></i>Merge PDFs</span>
+                    <span id="btnSpinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                </button>
             </form>
         </div>
     </div>
-    
+
     <div class="alert alert-info">
         <h5>How to use:</h5>
         <ol>
@@ -47,4 +52,37 @@
         </ol>
     </div>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const form = document.getElementById("mergeForm");
+        const submitBtn = document.getElementById("submitBtn");
+        const btnText = document.getElementById("btnText");
+        const btnSpinner = document.getElementById("btnSpinner");
+
+        const fileInputs = [
+            document.getElementById("id_pdf_file1"),
+            document.getElementById("id_pdf_file2")
+        ];
+
+        const MAX_FILE_SIZE_MB = 250;
+        const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
+
+        form.addEventListener("submit", function (e) {
+            for (let fileInput of fileInputs) {
+                const file = fileInput.files[0];
+                if (file && file.size > MAX_FILE_SIZE_BYTES) {
+                    e.preventDefault();
+                    alert(`"${file.name}" exceeds the 250MB limit.`);
+                    return;
+                }
+            }
+
+            // Show loading spinner
+            submitBtn.disabled = true;
+            btnText.classList.add("d-none");
+            btnSpinner.classList.remove("d-none");
+        });
+    });
+</script>
 {% endblock %}

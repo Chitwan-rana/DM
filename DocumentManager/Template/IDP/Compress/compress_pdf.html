@@ -2,64 +2,66 @@
 
 {% block main %}
 <div class="container mt-5">
-    <h2 class="mb-4">PDF Compression Tool</h2>
-    
+    <h2 class="mb-4 text-center"><i class="bi bi-file-earmark-zip-fill text-primary"></i> PDF Compression Tool</h2>
+
     {% if error %}
     <div class="alert alert-danger">
         {{ error }}
     </div>
     {% endif %}
-    
+
     {% if success %}
-    <div class="card mb-4">
-        <div class="card-header bg-success text-white">
+    <div class="card shadow mb-4">
+        <div class="card-header bg-success text-white fw-bold">
             Compression Successful
         </div>
         <div class="card-body">
-            <h5 class="card-title">File size comparison:</h5>
-            <div class="row">
+            <div class="row text-center">
                 <div class="col-md-4">
-                    <div class="card text-center mb-3">
+                    <div class="card border-0">
                         <div class="card-body">
-                            <h5 class="card-title">Original Size</h5>
-                            <p class="display-4">{{ original_size_readable }}</p>
+                            <h6 class="text-muted">Original Size</h6>
+                            <p class="display-6">{{ original_size_readable }}</p>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="card text-center mb-3">
+                    <div class="card border-0">
                         <div class="card-body">
-                            <h5 class="card-title">New Size</h5>
-                            <p class="display-4">{{ compressed_size_readable }}</p>
+                            <h6 class="text-muted">Compressed Size</h6>
+                            <p class="display-6">{{ compressed_size_readable }}</p>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="card text-center mb-3">
+                    <div class="card border-0">
                         <div class="card-body">
-                            <h5 class="card-title">Space Saved</h5>
-                            <p class="display-4">{{ compression_rate }}%</p>
+                            <h6 class="text-muted">Space Saved</h6>
+                            <p class="display-6 text-success fw-bold">{{ compression_rate }}%</p>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="text-center mt-3">
-                <a href="{% url 'download_compressed_pdf' %}" class="btn btn-primary btn-lg">
+            <div class="text-center mt-4">
+                <a href="{% url 'download_compressed_pdf' %}" class="btn btn-lg btn-primary">
                     <i class="bi bi-download"></i> Download Compressed PDF
                 </a>
             </div>
         </div>
     </div>
-    <div class="mt-3">
-        <a href="{% url 'compress_pdf' %}" class="btn btn-outline-secondary">Compress Another PDF</a>
+    <div class="text-center mt-3">
+        <a href="{% url 'compress_pdf' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-repeat"></i> Compress Another PDF
+        </a>
     </div>
+
     {% else %}
-    <div class="card mb-4">
-        <div class="card-header bg-primary text-white">
-            Compress PDF File
+    <div class="card shadow mb-4">
+        <div class="card-header bg-primary text-white fw-semibold">
+            Upload PDF to Compress
         </div>
         <div class="card-body">
-            <form method="post" enctype="multipart/form-data">
+            <form method="post" enctype="multipart/form-data" id="compression-form">
                 {% csrf_token %}
                 <div class="mb-3">
                     {{ form.pdf_file.label_tag }}
@@ -76,20 +78,45 @@
                     {{ form.output_filename }}
                     <div class="form-text">{{ form.output_filename.help_text }}</div>
                 </div>
-                <button type="submit" class="btn btn-primary">Compress PDF</button>
+                <button type="submit" class="btn btn-primary" id="submit-btn">
+                    <span id="btn-text"><i class="bi bi-gear-fill"></i> Compress PDF</span>
+                    <span id="btn-spinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                </button>
             </form>
         </div>
     </div>
     {% endif %}
-    
-    <div class="alert alert-info">
-        <h5>How PDF Compression Works:</h5>
-        <ul>
-            <li><strong>Low compression</strong>: Maintains higher quality but results in larger file size</li>
-            <li><strong>Medium compression</strong>: A balanced approach, suitable for most documents</li>
-            <li><strong>High compression</strong>: Creates smaller files but may reduce quality of images and graphics</li>
+
+    <div class="alert alert-info mt-4">
+        <h5><i class="bi bi-info-circle-fill"></i> How PDF Compression Works:</h5>
+        <ul class="mb-1">
+            <li><strong>Low</strong>: Maintains higher quality – larger file</li>
+            <li><strong>Medium</strong>: Balanced quality and size</li>
+            <li><strong>High</strong>: Smallest file – may reduce image quality</li>
         </ul>
-        <p>Note: Compression works best on PDFs with images. Text-only PDFs may see minimal reduction in size.</p>
+        <small class="text-muted">Note: Text-only PDFs may not compress significantly. Best results on image-heavy PDFs.</small>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.getElementById('compression-form');
+        const button = document.getElementById('submit-btn');
+        const text = document.getElementById('btn-text');
+        const spinner = document.getElementById('btn-spinner');
+
+        form?.addEventListener('submit', () => {
+            button.disabled = true;
+            text.classList.add('d-none');
+            spinner.classList.remove('d-none');
+
+            // Optional: Reset after 30s if server takes too long
+            setTimeout(() => {
+                button.disabled = false;
+                spinner.classList.add('d-none');
+                text.classList.remove('d-none');
+            }, 30000);
+        });
+    });
+</script>
 {% endblock %}
