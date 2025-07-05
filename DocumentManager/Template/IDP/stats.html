@@ -1,20 +1,80 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Document Statistics{% endblock %}
+{% block title %}PDF Operations Dashboard{% endblock %}
 
 {% block main %}
-<h2>Document Operation Stats</h2>
-<p>Total Documents Processed: {{ total_documents }}</p>
+<div class="container mt-4">
+  <h2 class="mb-4">📊 PDF Operation Statistics</h2>
 
-<table>
-    <thead>
-        <tr><th>Operation</th><th>Count</th></tr>
-    </thead>
-    <tbody>
-        {% for stat in stats_by_type %}
-        <tr><td>{{ stat.operation_type }}</td><td>{{ stat.count }}</td></tr>
-        {% endfor %}
-    </tbody>
-</table>
+  <div class="row text-white mb-4">
+    <div class="col-md-4">
+      <div class="card bg-primary shadow">
+        <div class="card-body">
+          <h5>Total Documents Processed</h5>
+          <h2>{{ total_documents }}</h2>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mb-4">
+    <div class="col-md-6">
+      <canvas id="barChart"></canvas>
+    </div>
+    <div class="col-md-6">
+      <canvas id="pieChart"></canvas>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const labels = {{ operation_labels|safe }};
+  const counts = {{ operation_counts|safe }};
+
+  const barCtx = document.getElementById('barChart').getContext('2d');
+  new Chart(barCtx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Operation Count',
+        data: counts,
+        backgroundColor: 'rgba(54, 162, 235, 0.6)',
+        borderColor: 'rgba(54, 162, 235, 1)',
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        title: { display: true, text: 'Operations Usage Count' }
+      },
+      scales: {
+        y: { beginAtZero: true }
+      }
+    }
+  });
+
+  const pieCtx = document.getElementById('pieChart').getContext('2d');
+  new Chart(pieCtx, {
+    type: 'pie',
+    data: {
+      labels: labels,
+      datasets: [{
+        data: counts,
+        backgroundColor: [
+          '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'
+        ]
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        title: { display: true, text: 'Operation Type Distribution' }
+      }
+    }
+  });
+</script>
 {% endblock %}

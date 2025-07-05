@@ -748,9 +748,22 @@ def convert_pdf_to_docx(request):
 
 def stats_view(request):
     total_documents = PDFOperationTracker.objects.count()
-    stats_by_type = PDFOperationTracker.objects.values('operation_type').annotate(count=Count('id'))
 
-    return render(request, 'IDP/stats.html', {
+    stats_by_type = (
+        PDFOperationTracker.objects.values('operation_type')
+        .annotate(count=Count('id'))
+        .order_by('-count')
+    )
+
+    # Mapping operation_type to readable names
+    operation_display = dict(PDFOperationTracker.OPERATION_CHOICES)
+    for stat in stats_by_type:
+        stat['operation_label'] = operation_display.get(stat['operation_type'], stat['operation_type'])
+
+    context = {
         'total_documents': total_documents,
-        'stats_by_type': stats_by_type
-    })
+        'stats_by_type': stats_by_type,
+        'operation_labels': [s['operation_label'] for s in stats_by_type],
+        'operation_counts': [s['count'] for s in stats_by_type]
+    }
+    return render(request, 'IDP/stats.html', context)
