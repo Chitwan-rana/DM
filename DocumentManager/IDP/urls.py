@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import merge_pdfs_view,compress_pdf_view,download_compressed_pdf,split_pdf_view,download_split_pdf,convert_pdf,download_searchable_pdf,redact_confirm,redact,upload_pdf,convert_pdf_to_docx,convert_pdf_view,download_split_pdf_view
+from .views import merge_pdfs_view,compress_pdf_view,download_compressed_pdf,split_pdf_view,download_split_pdf,convert_pdf,download_searchable_pdf,redact_confirm,redact,upload_pdf,convert_pdf_to_docx,convert_pdf_view,download_split_pdf_view,stats_view
 
 urlpatterns = [
      # PDF MERGE
@@ -21,6 +21,7 @@ urlpatterns = [
      path('convert-pdf-view/', convert_pdf_view, name='convert_pdf_view'),
      path('upload/', upload_pdf, name='upload_pdf'),
      path('pdf_to_docx/', convert_pdf_to_docx, name='convert_pdf_to_docx'),
-
+     # Statistics View
+     path('stats/', stats_view, name='stats_view'),
 
 ]

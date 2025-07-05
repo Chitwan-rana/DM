@@ -28,6 +28,10 @@ from django.views.decorators.csrf import csrf_exempt
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from pdf2docx import Converter #type:ignore
+from django.shortcuts import render
+from IDP.models import PDFOperationTracker
+from django.db.models import Count
+from IDP.utils.track_operations import track_pdf_operation 
 
 
 logger = logging.getLogger(__name__)
@@ -112,6 +116,9 @@ def merge_pdfs_view(request):
                 if not merged_pdf_content:
                     context['error'] = "Failed to merge the PDF files. Please try again."
                     return render(request, 'IDP/Merge/merge_pdfs.html', context)
+                
+                track_pdf_operation('merge', pdf_file1.name)
+                track_pdf_operation('merge', pdf_file2.name)
                 
                 # Create the HTTP response with the merged PDF
                 response = HttpResponse(merged_pdf_content, content_type='application/pdf')
@@ -232,6 +239,7 @@ def compress_pdf_view(request):
                 compression_result = compress_pdf(pdf_file, compression_level)
                 if not compression_result:
                     context['error'] = "Failed to compress the PDF. Please try again."
+                    track_pdf_operation('compress', pdf_file.name)
                     return render(request, 'IDP/Compress/compress_pdf.html', context)
                 
                 # Store the compressed content in the session
@@ -430,6 +438,8 @@ def split_pdf_view(request):
                 if not split_content:
                     context['error'] = "Failed to split the PDF. Please try again."
                     return render(request, 'IDP/Split/split_pdf.html', context)
+                # ✅ Track the operation
+                track_pdf_operation('split', pdf_file.name)
 
                 # Store info in session
                 request.session['split_pdf'] = split_content.hex()
@@ -516,6 +526,8 @@ def convert_pdf(request):
             # Store the output path in the session for download
             request.session['output_pdf_path'] = output_path
             request.session['output_filename'] = f"{base_name}_searchable.pdf"
+            # ✅ Track the operation
+            track_pdf_operation('searchable', pdf_file.name)    
             
             return render(request, 'IDP/Searchable/success.html', {
                 'original_filename': original_filename,
@@ -583,6 +595,8 @@ def redact(request):
         temp_pdf_path = os.path.join(TEMP_DIR, f"{session_id}.pdf")
         os.makedirs(TEMP_DIR, exist_ok=True)
         default_storage.save(temp_pdf_path, pdf_file)
+        # ✅ Track the operation
+        track_pdf_operation('redact', pdf_file.name)
 
         request.session['temp_pdf'] = temp_pdf_path
         request.session['terms'] = terms
@@ -666,6 +680,8 @@ def upload_pdf(request):
             with open(full_path, 'wb+') as destination:
                 for chunk in pdf_file.chunks():
                     destination.write(chunk)
+                    # ✅ Track the operation
+                track_pdf_operation('pdf_to_docx', pdf_file.name)
             
             # Generate URL for preview
             pdf_url = f"{settings.MEDIA_URL}{pdf_path}"
@@ -726,3 +742,15 @@ def convert_pdf_to_docx(request):
             return JsonResponse({'error': f'Conversion failed: {str(e)}'}, status=500)
     
     return JsonResponse({'error': 'Invalid request'}, status=400)
+
+
+# Statistics View
+
+def stats_view(request):
+    total_documents = PDFOperationTracker.objects.count()
+    stats_by_type = PDFOperationTracker.objects.values('operation_type').annotate(count=Count('id'))
+
+    return render(request, 'IDP/stats.html', {
+        'total_documents': total_documents,
+        'stats_by_type': stats_by_type
+    })

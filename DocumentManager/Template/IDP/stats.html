@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Document Statistics{% endblock %}
+
+{% block main %}
+<h2>Document Operation Stats</h2>
+<p>Total Documents Processed: {{ total_documents }}</p>
+
+<table>
+    <thead>
+        <tr><th>Operation</th><th>Count</th></tr>
+    </thead>
+    <tbody>
+        {% for stat in stats_by_type %}
+        <tr><td>{{ stat.operation_type }}</td><td>{{ stat.count }}</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
