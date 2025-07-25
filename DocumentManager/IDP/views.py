@@ -32,6 +32,10 @@ from django.shortcuts import render
 from IDP.models import PDFOperationTracker
 from django.db.models import Count
 from IDP.utils.track_operations import track_pdf_operation 
+from django.utils import timezone
+from datetime import timedelta
+from django.db.models.functions import TruncDate
+
 
 
 logger = logging.getLogger(__name__)
@@ -492,57 +496,70 @@ def download_split_pdf(request):
 #Convert PDF to Searchable Format
 
 def convert_pdf(request):
-    """Process the uploaded PDF and convert to searchable format"""
+    """Process the uploaded PDF and convert to searchable format."""
     if request.method == 'POST' and request.FILES.get('pdf_file'):
         # Get the uploaded file
         pdf_file = request.FILES['pdf_file']
-        
+
         # Validate file is PDF
         if not pdf_file.name.endswith('.pdf'):
-            messages.error(request, "Please upload a PDF file.")
+            messages.error(request, "Please upload a valid PDF file.")
             return render(request, 'IDP/Searchable/Searchable.html')
-            
+
         # Create a unique filename
         unique_id = uuid.uuid4().hex
         original_filename = pdf_file.name
         base_name = os.path.splitext(original_filename)[0]
-        
-        # Create temp directory if it doesn't exist
+
+        # Create temp directory
         temp_dir = os.path.join(settings.MEDIA_ROOT, 'temp_pdfs')
         os.makedirs(temp_dir, exist_ok=True)
-        
+
         # Save paths
         input_path = os.path.join(temp_dir, f"{unique_id}_input.pdf")
         output_path = os.path.join(temp_dir, f"{unique_id}_searchable.pdf")
-        
-        # Save the uploaded file
+
+        # Save the uploaded file to temp path
         fs = FileSystemStorage(location=temp_dir)
         fs.save(f"{unique_id}_input.pdf", pdf_file)
-        
+
         try:
-            # Convert PDF using OCRmyPDF
+            # Run OCR
             ocrmypdf.ocr(input_path, output_path, deskew=True)
-            
-            # Store the output path in the session for download
+
+            # Save result to session
             request.session['output_pdf_path'] = output_path
             request.session['output_filename'] = f"{base_name}_searchable.pdf"
-            # ✅ Track the operation
-            track_pdf_operation('searchable', pdf_file.name)    
-            
+
+            # ✅ Track operation
+            track_pdf_operation('searchable', pdf_file.name)
+
             return render(request, 'IDP/Searchable/success.html', {
                 'original_filename': original_filename,
                 'searchable_filename': f"{base_name}_searchable.pdf"
             })
-            
+
         except Exception as e:
-            # Clean up files
+            # Clean up temp files
             if os.path.exists(input_path):
                 os.remove(input_path)
             if os.path.exists(output_path):
                 os.remove(output_path)
-                
-            messages.error(request, f"Error processing PDF: {str(e)}")
+
+            error_msg = str(e)
+
+            # Custom message for already searchable PDFs
+            if "page already has text!" in error_msg:
+                messages.warning(
+                    request,
+                    "The uploaded PDF already contains selectable text and does not need OCR. "
+                    
+                )
+            else:
+                messages.error(request, f"Error processing PDF: {error_msg}")
+
             return render(request, 'IDP/Searchable/Searchable.html')
+
     else:
         return render(request, 'IDP/Searchable/Searchable.html')
 
@@ -746,24 +763,58 @@ def convert_pdf_to_docx(request):
 
 # Statistics View
 
-def stats_view(request):
-    total_documents = PDFOperationTracker.objects.count()
 
+
+
+def stats_view(request):
+    filter_type = request.GET.get('filter', 'all')
+    now = timezone.now()
+
+    if filter_type == 'today':
+        start_date = now.replace(hour=0, minute=0, second=0)
+    elif filter_type == 'week':
+        start_date = now - timedelta(days=7)
+    elif filter_type == 'month':
+        start_date = now - timedelta(days=30)
+    else:
+        start_date = None
+
+    if start_date:
+        operations = PDFOperationTracker.objects.filter(timestamp__gte=start_date)
+    else:
+        operations = PDFOperationTracker.objects.all()
+
+    total_documents = operations.count()
+
+    # Bar & Pie chart data
     stats_by_type = (
-        PDFOperationTracker.objects.values('operation_type')
+        operations.values('operation_type')
         .annotate(count=Count('id'))
         .order_by('-count')
     )
 
-    # Mapping operation_type to readable names
     operation_display = dict(PDFOperationTracker.OPERATION_CHOICES)
     for stat in stats_by_type:
         stat['operation_label'] = operation_display.get(stat['operation_type'], stat['operation_type'])
+
+    # Line chart data (trends over time)
+    date_counts = (
+        operations.annotate(date=TruncDate('timestamp'))
+        .values('date')
+        .annotate(count=Count('id'))
+        .order_by('date')
+    )
+    trend_labels = [entry['date'].strftime('%Y-%m-%d') for entry in date_counts]
+    trend_counts = [entry['count'] for entry in date_counts]
 
     context = {
         'total_documents': total_documents,
         'stats_by_type': stats_by_type,
         'operation_labels': [s['operation_label'] for s in stats_by_type],
-        'operation_counts': [s['count'] for s in stats_by_type]
+        'operation_counts': [s['count'] for s in stats_by_type],
+        'filter_type': filter_type,
+        'trend_labels': json.dumps(trend_labels),
+        'trend_counts': json.dumps(trend_counts),
     }
+
     return render(request, 'IDP/stats.html', context)
