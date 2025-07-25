@@ -65,6 +65,11 @@ def train_model(request):
         for image in images:
             dataset.append((image.image.path, labels_dict[label.name]))
 
+    if not dataset:
+        messages.warning(request, "Training failed: Please upload and assign at least one image to a label.")
+        return redirect('classify')
+
+
     processor = LayoutLMv3Processor.from_pretrained("microsoft/layoutlmv3-base", apply_ocr=False)
     model = LayoutLMv3ForSequenceClassification.from_pretrained("microsoft/layoutlmv3-base", num_labels=len(labels_dict))
 

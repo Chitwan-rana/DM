@@ -29,7 +29,7 @@
     <!-- Upload Images Section -->
     <div class="card shadow-sm p-4 mb-4">
         <h3 class="text-secondary mb-3">Upload Images</h3>
-        <form method="post" enctype="multipart/form-data" onsubmit="showSpinner()">
+        <form method="post" enctype="multipart/form-data" id="uploadForm">
             {% csrf_token %}
             <div class="mb-3">
                 <label for="label" class="form-label">Select Label:</label>
@@ -42,7 +42,7 @@
             </div>
             <div class="mb-3">
                 <label for="images" class="form-label">Upload Images:</label>
-                <input type="file" name="images" id="images" class="form-control" multiple required>
+                <input type="file" name="images" id="images" class="form-control" multiple required accept="image/*">
             </div>
             <button type="submit" name="upload_images" class="btn btn-primary">Upload</button>
         </form>
@@ -70,20 +70,20 @@
     </div>
 
     <!-- Train Model Section -->
-    <div class="text-center mb-4">
-        <form method="post" action="{% url 'train_model' %}" onsubmit="showSpinner()">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-warning" id="trainBtn">
-                <span id="trainSpinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
-                <span id="trainBtnText">Train Model</span>
-            </button>
-        </form>
-    </div>
+<div class="text-center mb-4">
+    <form method="post" action="{% url 'train_model' %}" onsubmit="return checkBeforeTrain();">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-warning" id="trainBtn">
+            <span id="trainSpinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+            <span id="trainBtnText">Train Model</span>
+        </button>
+    </form>
+</div>
 
     <!-- Reset Data Section -->
     <div class="text-center mb-4">
         <form method="post" action="{% url 'reset_data' %}"
-              onsubmit="return confirm('Are you sure you want to delete all data? This action cannot be undone!');">
+              onsubmit="return confirm('This will permanently erase all data. Are you sure you want to continue?');">
             {% csrf_token %}
             <button type="submit" class="btn btn-danger">Reset Data</button>
         </form>
@@ -95,7 +95,7 @@
         <form method="post" enctype="multipart/form-data" action="{% url 'predict_label' %}" onsubmit="showSpinner()">
             {% csrf_token %}
             <div class="mb-3">
-                <input type="file" name="image" class="form-control" required>
+                <input type="file" name="image" class="form-control" accept="image/*" required>
             </div>
             <button type="submit" class="btn btn-danger">Predict</button>
         </form>
@@ -110,8 +110,9 @@
     </div>
 </div>
 
-<!-- Spinner Script -->
+<!-- JavaScript Section -->
 <script>
+    // Show loading spinner
     function showSpinner() {
         document.getElementById('loadingSpinner').classList.remove('d-none');
 
@@ -121,6 +122,35 @@
             document.getElementById('trainSpinner')?.classList.remove('d-none');
             document.getElementById('trainBtnText').textContent = 'Training...';
         }
+    }
+
+    // Validate uploaded files are images
+    document.getElementById('uploadForm').addEventListener('submit', function (e) {
+        const fileInput = document.getElementById('images');
+        const files = fileInput.files;
+
+        for (let i = 0; i < files.length; i++) {
+            if (!files[i].type.startsWith('image/')) {
+                e.preventDefault();
+                alert('Please upload images only (JPG, PNG, JPEG, WEBP).');
+                return false;
+            }
+        }
+
+        showSpinner();
+    });
+
+    function checkBeforeTrain() {
+        const totalImages = {{ images.count }};
+        if (totalImages === 0) {
+            alert("⚠️ Please upload at least one labeled image before training.");
+            return false;  // Prevent form submission
+        }
+
+        // Show loading spinner
+        document.getElementById("trainSpinner").classList.remove("d-none");
+        document.getElementById("trainBtnText").textContent = "Training...";
+        return true;
     }
 </script>
 {% endblock %}
