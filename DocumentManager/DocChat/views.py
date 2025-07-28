@@ -12,6 +12,7 @@ from langchain_community.document_loaders import PyPDFLoader  # type: ignore
 from langchain_google_genai import GoogleGenerativeAIEmbeddings  # type: ignore
 from dotenv import load_dotenv  # type: ignore
 from PyPDF2 import PdfReader  # for checking PDF page count
+from django.contrib.auth.decorators import login_required
 
 # Load environment variables
 load_dotenv()
@@ -76,7 +77,7 @@ def vector_embedding(uploaded_files):
     vectors = FAISS.from_documents(final_documents, embeddings)
     return "Your document is ready to take your questions."
 
-
+@login_required(login_url='/login/')
 def document_chat_view(request):
     context = {}
 

@@ -294,9 +294,11 @@ td {
       <!-- Logo on the left -->
       <a href="#" class="logo d-flex align-items-center">
         {% if user.is_authenticated %}
-          <h1 class="sitename" style="margin-right:20px;">Hello, {{ user.username }}!</h1>
+          <h1 class="sitename" style="margin-right:20px;">Hello, {{ user.first_name }}!</h1>
         {% else %}
-          <h1 class="sitename" style="margin-right:20px;">Document Manager</h1>
+        {% comment %} <h1 class="sitename" style="margin-right:20px;">Document Manager</h1> {% endcomment %}
+        {% comment %} Document_Manager_Logo1.jpg {% endcomment %}
+         <img src="{% static 'assets/img/Document_Manager_Logo.png' %}" alt="Document Manager" width="100" height="150" style="margin-right:10px;">
         {% endif %}
       </a>
       

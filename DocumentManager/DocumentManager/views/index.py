@@ -38,7 +38,7 @@ def user_logout(request):
     logout(request)
     return redirect('/')
 
-
+@login_required(login_url='/login/')
 def pipeline(request):
     return render(request,'pipeline.html')
 
