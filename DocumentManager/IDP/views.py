@@ -34,7 +34,8 @@ from django.db.models import Count
 from IDP.utils.track_operations import track_pdf_operation 
 from django.utils import timezone
 from datetime import timedelta
-from django.db.models.functions import TruncDate
+from django.db.models.functions import TruncDate,TruncWeek
+
 
 
 
@@ -243,8 +244,10 @@ def compress_pdf_view(request):
                 compression_result = compress_pdf(pdf_file, compression_level)
                 if not compression_result:
                     context['error'] = "Failed to compress the PDF. Please try again."
-                    track_pdf_operation('compress', pdf_file.name)
                     return render(request, 'IDP/Compress/compress_pdf.html', context)
+                
+                # ✅ Add this line to track the compression operation
+                track_pdf_operation('compress', pdf_file.name, request)
                 
                 # Store the compressed content in the session
                 request.session['compressed_pdf'] = compression_result['content'].hex()
@@ -763,13 +766,11 @@ def convert_pdf_to_docx(request):
 
 # Statistics View
 
-
-
-
 def stats_view(request):
-    filter_type = request.GET.get('filter', 'all')
+    filter_type = request.GET.get('filter', 'all')  # Options: today, week, month, all
     now = timezone.now()
 
+    # Determine start date based on filter
     if filter_type == 'today':
         start_date = now.replace(hour=0, minute=0, second=0)
     elif filter_type == 'week':
@@ -779,14 +780,16 @@ def stats_view(request):
     else:
         start_date = None
 
+    # Filter operations by date
     if start_date:
         operations = PDFOperationTracker.objects.filter(timestamp__gte=start_date)
     else:
         operations = PDFOperationTracker.objects.all()
 
+    # Total number of documents
     total_documents = operations.count()
 
-    # Bar & Pie chart data
+    # Bar & Pie chart: Group by operation_type
     stats_by_type = (
         operations.values('operation_type')
         .annotate(count=Count('id'))
@@ -797,14 +800,21 @@ def stats_view(request):
     for stat in stats_by_type:
         stat['operation_label'] = operation_display.get(stat['operation_type'], stat['operation_type'])
 
-    # Line chart data (trends over time)
+    # Line Chart: Weekly or Daily Trend
+    if filter_type == 'month':
+        grouped = operations.annotate(period=TruncWeek('timestamp'))
+        date_format = '%Y-%m-%d'
+    else:
+        grouped = operations.annotate(period=TruncDate('timestamp'))
+        date_format = '%Y-%m-%d'
+
     date_counts = (
-        operations.annotate(date=TruncDate('timestamp'))
-        .values('date')
+        grouped.values('period')
         .annotate(count=Count('id'))
-        .order_by('date')
+        .order_by('period')
     )
-    trend_labels = [entry['date'].strftime('%Y-%m-%d') for entry in date_counts]
+
+    trend_labels = [entry['period'].strftime(date_format) for entry in date_counts]
     trend_counts = [entry['count'] for entry in date_counts]
 
     context = {
@@ -812,9 +822,9 @@ def stats_view(request):
         'stats_by_type': stats_by_type,
         'operation_labels': [s['operation_label'] for s in stats_by_type],
         'operation_counts': [s['count'] for s in stats_by_type],
-        'filter_type': filter_type,
         'trend_labels': json.dumps(trend_labels),
         'trend_counts': json.dumps(trend_counts),
+        'filter_type': filter_type,
     }
 
     return render(request, 'IDP/stats.html', context)

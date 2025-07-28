@@ -1,122 +1,186 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}PDF Operations Dashboard{% endblock %}
+{% block title %}PDF Statistics{% endblock %}
 
 {% block main %}
-<div class="container mt-4">
-  <h2 class="mb-4">📊 PDF Operation Statistics</h2>
-
-  <!-- Filters -->
-  <form method="get" class="mb-4">
-    <div class="row">
-      <div class="col-md-4">
-        <select name="range" class="form-control" onchange="this.form.submit()">
-          <option value="">📅 All Time</option>
-          <option value="today" {% if request.GET.range == 'today' %}selected{% endif %}>Today</option>
-          <option value="week" {% if request.GET.range == 'week' %}selected{% endif %}>This Week</option>
-          <option value="month" {% if request.GET.range == 'month' %}selected{% endif %}>This Month</option>
-        </select>
-      </div>
-    </div>
-  </form>
-
-  <!-- Total Stats -->
-  <div class="row text-white mb-4">
-    <div class="col-md-4">
-      <div class="card bg-primary shadow">
-        <div class="card-body">
-          <h5>Total Documents Processed</h5>
-          <h2>{{ total_documents }}</h2>
+<div class="container py-4">
+    <!-- Header with quick stats -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="mb-1">PDF Operations Dashboard</h4>
+                            <p class="text-muted mb-0">Tracking {{ total_documents }} document operations</p>
+                        </div>
+                        <div class="btn-group">
+                            <a href="?filter=all" class="btn btn-sm {% if filter_type == 'all' %}btn-primary{% else %}btn-outline-primary{% endif %}">All</a>
+                            <a href="?filter=today" class="btn btn-sm {% if filter_type == 'today' %}btn-primary{% else %}btn-outline-primary{% endif %}">Today</a>
+                            <a href="?filter=week" class="btn btn-sm {% if filter_type == 'week' %}btn-primary{% else %}btn-outline-primary{% endif %}">7 Days</a>
+                            <a href="?filter=month" class="btn btn-sm {% if filter_type == 'month' %}btn-primary{% else %}btn-outline-primary{% endif %}">30 Days</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
 
-  <!-- Bar + Pie Charts -->
-  <div class="row mb-4">
-    <div class="col-md-6">
-      <canvas id="barChart"></canvas>
+    <!-- Charts in a 2-column layout -->
+    <div class="row g-4">
+        <!-- Operations Bar Chart -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm h-100 border-0">
+                <div class="card-header bg-white border-0 py-3">
+                    <h6 class="mb-0">Operation Types</h6>
+                </div>
+                <div class="card-body">
+                    <div style="height: 250px">
+                        <canvas id="barChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Trend Line Chart -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm h-100 border-0">
+                <div class="card-header bg-white border-0 py-3">
+                    <h6 class="mb-0">Operations Trend</h6>
+                </div>
+                <div class="card-body">
+                    <div style="height: 250px">
+                        <canvas id="lineChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="col-md-6">
-      <canvas id="pieChart"></canvas>
+    
+    <!-- Recent operations table -->
+    {% if recent_operations %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white border-0 py-3">
+                    <h6 class="mb-0">Recent Operations</h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Operation</th>
+                                    <th>File</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for op in recent_operations %}
+                                <tr>
+                                    <td>
+                                        <span class="badge {% if op.operation_type == 'merge' %}bg-primary{% elif op.operation_type == 'compress' %}bg-success{% elif op.operation_type == 'split' %}bg-warning{% else %}bg-secondary{% endif %}">
+                                            {{ op.operation_type }}
+                                        </span>
+                                    </td>
+                                    <td class="text-truncate" style="max-width: 200px">{{ op.filename }}</td>
+                                    <td>{{ op.timestamp|date:"M d, H:i" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
-
-  <!-- Line Chart -->
-  <div class="row mb-4">
-    <div class="col-12">
-      <canvas id="trendChart"></canvas>
-    </div>
-  </div>
+    {% endif %}
 </div>
 
-<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-  const labels = {{ operation_labels|safe }};
-  const counts = {{ operation_counts|safe }};
+    // Get data from context
+    const operationLabels = {{ operation_labels|safe }};
+    const operationCounts = {{ operation_counts|safe }};
+    const trendLabels = {{ trend_labels|safe }};
+    const trendCounts = {{ trend_counts|safe }};
+    
+    // Chart.js configuration with responsive options
+    Chart.defaults.font.family = "'Segoe UI', 'Helvetica Neue', Arial, sans-serif";
+    Chart.defaults.font.size = 12;
+    
+    // Bar Chart - Operations
+    new Chart(document.getElementById('barChart'), {
+        type: 'bar',
+        data: {
+            labels: operationLabels,
+            datasets: [{
+                label: 'Operations',
+                data: operationCounts,
+                backgroundColor: [
+                    'rgba(59, 130, 246, 0.7)', // blue
+                    'rgba(16, 185, 129, 0.7)', // green
+                    'rgba(245, 158, 11, 0.7)', // orange
+                    'rgba(239, 68, 68, 0.7)',  // red
+                    'rgba(139, 92, 246, 0.7)', // purple
+                    'rgba(20, 184, 166, 0.7)'  // teal
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: { 
+                    beginAtZero: true,
+                    ticks: { precision: 0 }
+                },
+                x: {
+                    grid: { display: false }
+                }
+            }
+        }
+    });
 
-  new Chart(document.getElementById('barChart'), {
-    type: 'bar',
-    data: {
-      labels: labels,
-      datasets: [{
-        label: 'Operation Count',
-        data: counts,
-        backgroundColor: 'rgba(54, 162, 235, 0.6)',
-        borderColor: 'rgba(54, 162, 235, 1)',
-        borderWidth: 1
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        title: { display: true, text: 'Operations Usage Count' }
-      },
-      scales: {
-        y: { beginAtZero: true }
-      }
-    }
-  });
-
-  new Chart(document.getElementById('pieChart'), {
-    type: 'pie',
-    data: {
-      labels: labels,
-      datasets: [{
-        data: counts,
-        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40']
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        title: { display: true, text: 'Operation Type Distribution' }
-      }
-    }
-  });
-
-  // Line Chart (Trend)
-  new Chart(document.getElementById('trendChart'), {
-    type: 'line',
-    data: {
-      labels: {{ trend_labels|safe }},
-      datasets: [{
-        label: 'Documents Processed',
-        data: {{ trend_counts|safe }},
-        fill: false,
-        borderColor: 'rgb(75, 192, 192)',
-        tension: 0.3
-      }]
-    },
-    options: {
-      responsive: true,
-      scales: {
-        x: { title: { display: true, text: 'Date' }},
-        y: { title: { display: true, text: 'Operations' }}
-      }
-    }
-  });
+    // Line Chart - Trend
+    new Chart(document.getElementById('lineChart'), {
+        type: 'line',
+        data: {
+            labels: trendLabels,
+            datasets: [{
+                label: 'Documents',
+                data: trendCounts,
+                borderColor: 'rgb(14, 165, 233)',
+                backgroundColor: 'rgba(14, 165, 233, 0.1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4,
+                pointRadius: 3,
+                pointBackgroundColor: 'white',
+                pointBorderColor: 'rgb(14, 165, 233)',
+                pointBorderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: { 
+                    beginAtZero: true,
+                    ticks: { precision: 0 }
+                },
+                x: {
+                    grid: { display: false }
+                }
+            }
+        }
+    });
 </script>
 {% endblock %}
