@@ -87,6 +87,6 @@ Combine multiple PDFs into a single organized document.
 4. For other utilities, click **Download** to get the final document or data.
 
 ---
-
+   
 
 **Built with ❤️ to simplify document management using AI and modern Python tools.**

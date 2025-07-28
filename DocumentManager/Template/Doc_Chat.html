@@ -78,14 +78,63 @@
     {% endif %}
 </div>
 
-<!-- JavaScript for showing loading spinner -->
+<!-- JavaScript for showing loading spinner and validating PDF files -->
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         const form = document.querySelector('form[method="post"][enctype="multipart/form-data"]');
         const loadingDiv = document.getElementById("loadingMessage");
+        const fileInput = document.getElementById("pdfInput");
+        const fileNames = document.getElementById("fileNames");
 
+        // Add file selection change handler
+        if (fileInput) {
+            fileInput.addEventListener("change", function() {
+                const files = this.files;
+                let validFiles = true;
+                let fileList = [];
+                
+                // Clear previous file names
+                fileNames.innerHTML = "";
+                
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    const extension = file.name.split('.').pop().toLowerCase();
+                    
+                    // Check if file is PDF
+                    if (extension !== 'pdf') {
+                        validFiles = false;
+                        fileNames.innerHTML += `<div class="text-danger">Invalid file: ${file.name} (Only PDF files allowed)</div>`;
+                    } else {
+                        fileList.push(file.name);
+                    }
+                }
+                
+                // Show valid files
+                if (fileList.length > 0) {
+                    fileNames.innerHTML += `<div>Selected: ${fileList.join(", ")}</div>`;
+                }
+                
+                // Disable submit button if invalid files
+                const submitBtn = form.querySelector('button[type="submit"][name="upload"]');
+                submitBtn.disabled = !validFiles;
+            });
+        }
+
+        // Form submit handler
         if (form && loadingDiv) {
-            form.addEventListener("submit", function () {
+            form.addEventListener("submit", function (e) {
+                // Additional check before submission
+                const files = fileInput.files;
+                for (let i = 0; i < files.length; i++) {
+                    const extension = files[i].name.split('.').pop().toLowerCase();
+                    if (extension !== 'pdf') {
+                        e.preventDefault();
+                        alert("Please upload PDF files only.");
+                        return false;
+                    }
+                }
+                
+                // Show loading spinner
                 loadingDiv.style.display = "block";
             });
         }
