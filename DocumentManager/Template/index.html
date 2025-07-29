@@ -102,6 +102,13 @@
   font-size: 2em;
 }
 
+h2.dashboard-title {
+  font-size: 2.5em;
+  font-weight: 600;
+  margin-bottom: 30px;
+  color: #1a237e;
+}
+
 /* Row Styling */
 .row {
   display: flex;
@@ -123,15 +130,50 @@
   flex: 1;
   margin: 10px;
   padding: 20px;
-  border: 1px solid #ccc;
-  border-radius: 10px;
+  border: none;
+  border-radius: 12px;
   text-align: center;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  background: #f9f9f9;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  background: #ffffff;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+}
+
+.card h3 {
+  font-size: 1.2em;
+  margin-bottom: 10px;
+  font-weight: 600;
+  color: #333;
+}
+
+.card p {
+  font-size: 1.8em;
+  font-weight: 700;
+  color: #3949ab;
 }
 
 
-.chart-container {
+.chart-container, .chart-container-0, .chart-container-1, .chart-container-2 {
+  flex: 1;
+  margin: 10px;
+  padding: 25px;
+  border: none;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.chart-container:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+}
+
+.chart-container-0 {
   flex: 1;
   margin: 10px;
   max-width: 45%;
@@ -143,23 +185,6 @@
   height: 400px;
 }
 
-
-.chart-container-0 {
-  flex: 1;
-  margin: 10px;
-  max-width: 45%;
-  padding: 20px;
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  background: #fff;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  height: 400px; 
-  display: flex;
-  flex-direction: column;
-  align-items: center; 
-  justify-content: center; 
-  overflow: hidden; 
-}
 
 .chart-container-0 canvas {
   max-width: 100%; 
@@ -297,8 +322,8 @@ td {
           <h1 class="sitename" style="margin-right:20px;">Hello, {{ user.first_name }}!</h1>
         {% else %}
         {% comment %} <h1 class="sitename" style="margin-right:20px;">Document Manager</h1> {% endcomment %}
-        {% comment %} Document_Manager_Logo1.jpg {% endcomment %}
-         <img src="{% static 'assets/img/Document_Manager_Logo.png' %}" alt="Document Manager" width="100" height="150" style="margin-right:10px;">
+        {% comment %} Document_Manager_Logo1.png {% endcomment %}
+         <img src="{% static 'assets/img/Document_Manager_Logo1.png' %}" alt="Document Manager" width="120" height="300" style="margin-right:10px;">
         {% endif %}
       </a>
       
@@ -650,14 +675,15 @@ td {
       </div>
       <div class="container">
         <div class="copyright">
-          <span>Copyright</span> <strong class="px-1 sitename">Document Manager</strong> <span>All Rights Reserved</span>
+          <span>Copyright</span> <strong class="px-1 sitename">Document Manager</strong> <br>
+          <span>All Rights Reserved</span>
         </div>
         <div class="credits">
           <!-- All the links in the footer should remain intact. -->
           <!-- You can delete the links only if you've purchased the pro version. -->
           <!-- Licensing information: https://bootstrapmade.com/license/ -->
           <!-- Purchase the pro version with working PHP/AJAX contact form: [buy-url] -->
-          Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a> Distributed By <a href="https://themewagon.com">ThemeWagon</a>
+          {% comment %} Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a> Distributed By <a href="https://themewagon.com">ThemeWagon</a> {% endcomment %}
         </div>
       </div>
     </div>
@@ -694,17 +720,19 @@ td {
       datasets: [{
         label: 'Processed',
         data: [120, 200, 150, 80, 250, 300, 400],
-        backgroundColor: 'rgba(54, 162, 235, 0.2)',
-        borderColor: 'rgba(54, 162, 235, 1)',
-        borderWidth: 1
+        backgroundColor: 'rgba(65, 105, 225, 0.2)',
+        borderColor: 'rgba(65, 105, 225, 1)',
+        borderWidth: 2
       }]
     };
   
     const demographicsData = {
       labels: ['EOB', 'Digitization', 'PDF Suite','Analytics','Visualization'],
       datasets: [{
-        data: [25, 30, 15 , 10 , 20],
-        backgroundColor: ['#03045E', '#023E8A', '#0096C7','#90E0EF','#CAF0F8']
+        data: [25, 30, 15, 10, 20],
+        backgroundColor: ['#1a237e', '#283593', '#3949ab', '#3f51b5', '#5c6bc0'],
+        borderWidth: 1,
+        borderColor: '#ffffff'
       }]
     };
   
