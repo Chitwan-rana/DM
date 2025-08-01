@@ -10,7 +10,8 @@
   <meta name="keywords" content="">
 
 <!-- Favicons -->
-<link href="{% static 'assets/img/favicon.png' %}" rel="icon">
+<!-- Favicons -->
+<link href="{% static 'assets/img/Document_Manager_Logo1.ico' %}" rel="icon">
 <link href="{% static 'assets/img/apple-touch-icon.png' %}" rel="apple-touch-icon">
 
 <!-- Fonts -->
@@ -308,6 +309,29 @@ td {
   }
 }
 
+/* More Details Button */
+.btn-more-details {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: #1c4966;
+  color: white;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.btn-more-details:hover {
+  background-color: #296D98;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  color: white;
+}
+
+.text-end {
+  text-align: right;
+}
 </style>
 </head>
 
@@ -437,6 +461,13 @@ td {
             <h3>Document Processed</h3>
             <canvas id="deviceChart"></canvas>
           </div>
+        </div>
+        
+        <!-- More Details Link -->
+        <div class="text-end mt-4 mb-3">
+          <a href="{% url 'stats_view' %}" class="btn-more-details">
+            More Details <i class="bi bi-arrow-right"></i>
+          </a>
         </div>
       </div>
 

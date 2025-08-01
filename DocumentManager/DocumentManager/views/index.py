@@ -4,10 +4,13 @@ from django.contrib.auth.forms import AuthenticationForm
 from DocumentManager.forms import RegistrationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-
+from .utils import get_pdf_stats  # To show PDF stats in index.html
 
 def Home(request):
-    return render(request, 'index.html', {'username': request.user.username})
+    filter_type = request.GET.get('filter', 'all')  # Optional: allows ?filter=today, etc.
+    stats_context = get_pdf_stats(filter_type)
+    stats_context['username'] = request.user.username  # Add username to context
+    return render(request, 'index.html', stats_context)
 
 def register(request):
     if request.method == 'POST':
