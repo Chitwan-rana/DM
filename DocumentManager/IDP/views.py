@@ -827,4 +827,4 @@ def stats_view(request):
         'filter_type': filter_type,
     }
 
-    return render(request, 'IDP/stats.html', context)
+    return render(request, 'stats.html', context)
