@@ -167,17 +167,19 @@
         const spinner = document.getElementById('button-spinner');
         const buttonText = document.getElementById('button-text');
 
-        form.addEventListener('submit', function () {
+        form.addEventListener('submit', function(e) {
+            // Show spinner
             button.disabled = true;
             buttonText.classList.add('d-none');
             spinner.classList.remove('d-none');
-
-            // Optional auto-reset in case redirect fails
+            
+            // Reset button state shortly after submission
+            // This is because file downloads don't trigger normal completion events
             setTimeout(() => {
                 button.disabled = false;
                 spinner.classList.add('d-none');
                 buttonText.classList.remove('d-none');
-            }, 30000);
+            }, 3000); // Reset after 3 seconds instead of 30
         });
     });
 

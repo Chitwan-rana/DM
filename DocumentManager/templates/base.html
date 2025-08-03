@@ -126,11 +126,11 @@
 
       <nav id="navmenu" class="navmenu">
         <ul class="nav-links">
-          <li><a href="{% url 'Home' %}" class="active">Home</a></li>
-          <li><a href="#about" class="active">Pipeline</a></li>
+          <li><a href="{% url 'Home' %}" {% if request.path == '/' %}class="active"{% endif %}>Home</a></li>
+          <li><a href="{% url 'pipeline' %}" {% if request.path == '/pipeline/' %}class="active"{% endif %}>Pipeline</a></li>
           <li><a href="#services">Services</a></li>
           <li><a href="#faq">FAQs</a></li>
-
+        </ul>
       </nav>
       <!-- Auth Links (SignUp & Login on the right) -->
       <ul class="auth-links">
@@ -237,4 +237,4 @@
 
 </body>
 
-</html> 
+</html>

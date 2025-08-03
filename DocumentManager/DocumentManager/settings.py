@@ -63,7 +63,7 @@ ROOT_URLCONF = 'DocumentManager.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'Template'],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -92,6 +92,17 @@ DATABASES = {
         'PORT': '5432',                    
     }
 }
+
+# Email configuration for password reset
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# Development-only email configuration
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'youremail@gmail.com'  # replace with your email
+EMAIL_HOST_PASSWORD = 'your-app-password'  # replace with your app password
+
 
 
 # Password validation

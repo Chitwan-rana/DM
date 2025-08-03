@@ -345,9 +345,9 @@ td {
         {% if user.is_authenticated %}
           <h1 class="sitename" style="margin-right:20px;">Hello, {{ user.first_name }}!</h1>
         {% else %}
-        {% comment %} <h1 class="sitename" style="margin-right:20px;">Document Manager</h1> {% endcomment %}
+        <h1 class="sitename" style="margin-right:20px;">Document Manager</h1>
         {% comment %} Document_Manager_Logo1.png {% endcomment %}
-         <img src="{% static 'assets/img/Document_Manager_Logo1.png' %}" alt="Document Manager" width="120" height="300" style="margin-right:10px;">
+         {% comment %} <img src="{% static 'assets/img/Document_Manager_Logo1.png' %}" alt="Document Manager" width="120" height="300" style="margin-right:10px;"> {% endcomment %}
         {% endif %}
       </a>
       

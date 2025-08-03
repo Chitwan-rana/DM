@@ -19,11 +19,11 @@ def register(request):
             user = form.save(commit=False)
             user.set_password(form.cleaned_data['password'])
             user.save()
-            return redirect('login')
+            return redirect('registration/login')
     else:
         form = RegistrationForm()
 
-    return render(request, 'register.html', {'form': form})
+    return render(request, 'registration/register.html', {'form': form})
 
 def user_login(request):
     if request.method == "POST":
@@ -34,8 +34,8 @@ def user_login(request):
             login(request, user)
             return redirect('/')  
         else:
-            return render(request, 'login.html', {'error': 'Invalid Credentials'})
-    return render(request, 'login.html')
+            return render(request, 'registration/login.html', {'error': 'Invalid Credentials'})
+    return render(request, 'registration/login.html')
 
 def user_logout(request):
     logout(request)
