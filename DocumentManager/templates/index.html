@@ -332,6 +332,13 @@ td {
 .text-end {
   text-align: right;
 }
+
+.footer {
+  height: 210px; /* Adjust this value as needed */
+  /* Or use max-height if you want it to be responsive */
+  max-height: 210px; 
+  overflow: hidden; /* If content exceeds height, hide overflow */
+}
 </style>
 </head>
 
@@ -388,10 +395,11 @@ td {
         <div class="carousel-item active">
           <div class="carousel-container">
             {% comment %} <h2 class="animate_animated animate_fadeInDown">Intelligent Document Processing </span></h2> {% endcomment %}
-            <h4 class="animate_animated animate_fadeInUp">Create Your Own Pipeline  </h4>
+            {% comment %} <h4 class="animate_animated animate_fadeInUp">Create Your Own Pipeline  </h4> {% endcomment %}
             <div class="d-flex justify-content-center gap-3 mt-3">
-            <a href="{% url 'pipeline' %}" class="btn-get-started animate__animated animate__fadeInUp scrollto">Try It</a>
+            <a href="{% url 'pipeline' %}" class="btn-get-started animate__animated animate__fadeInUp scrollto">Create Pipeline</a>
             <a href="Chat/" class="btn-get-started animate__animated animate__fadeInUp scrollto">Chat With Document</a>
+            <a href="{% url 'page_not_found'%}" class="btn-get-started animate__animated animate__fadeInUp scrollto">AI Agents</a>
           </div>
           </div>
         </div>
@@ -693,20 +701,20 @@ td {
 
   </main>
 
-  <footer id="footer" class="footer dark-background">
+  <footer id="footer" class="footer dark-background ">
     <div class="container">
       <h3 class="sitename">Document Manager</h3>
-      <p>We are a collective of seasoned technology aficionados, pooling our expertise to conquer the intricate challenges posed by data extraction and advanced analytics.</p>
-      <div class="social-links d-flex justify-content-center">
+      <p>We are a collective of seasoned technologists, united by a passion for solving complex challenges in data extraction and advanced analytics.</p>
+      {% comment %} <div class="social-links d-flex justify-content-center">
         <a href="{% url 'page_not_found' %}"><i class="bi bi-twitter-x"></i></a>
         <a href="{% url 'page_not_found' %}"><i class="bi bi-facebook"></i></a>
         <a href="{% url 'page_not_found' %}"><i class="bi bi-instagram"></i></a>
         <a href="{% url 'page_not_found' %}"><i class="bi bi-skype"></i></a>
         <a href="{% url 'page_not_found' %}"><i class="bi bi-linkedin"></i></a>
-      </div>
+      </div> {% endcomment %}
       <div class="container">
         <div class="copyright">
-          <span>Copyright</span> <strong class="px-1 sitename">Document Manager</strong> <br>
+          <span>Copyright</span> <strong class="px-1 sitename">Bodhita Minds</strong> <br>
           <span>All Rights Reserved</span>
         </div>
         <div class="credits">
