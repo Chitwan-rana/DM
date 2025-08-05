@@ -5,5 +5,3 @@ uploaded_documents/
 .env
 steps.txt
 __pycache__/
-Dockerfile
-docker-compose.yml
