@@ -1,1 +1,42 @@
-.env
+# Ignore Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore virtual environments
+venv/
+env/
+.mydoc/
+
+# Ignore Docker artifacts
+*.log
+*.pid
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
+
+# Ignore Git
+.git/
+.gitignore
+
+# Ignore file uploads/media
+media/
+uploads/
+layoutlmv3_finetuned/
+uploaded_documents/
+
+# Ignore test data
+*.csv
+*.xlsx
+*.pdf
+
+# Ignore migrations if not needed
+**/migrations/
+
+# Ignore compiled files
+*.so
+
+# Ignore node_modules (if you have frontend)
+node_modules/
