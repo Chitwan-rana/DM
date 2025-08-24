@@ -5,9 +5,10 @@ __pycache__/
 *.pyd
 
 # Ignore virtual environments
-venv/
+mydoc/
 env/
 .mydoc/
+myenv/
 
 # Ignore Docker artifacts
 *.log
@@ -40,3 +41,4 @@ uploaded_documents/
 
 # Ignore node_modules (if you have frontend)
 node_modules/
+requirements1.txt

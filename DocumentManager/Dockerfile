@@ -1,13 +1,15 @@
-FROM python:3.11-slim
+# ========================
+# Stage 1: Build
+# ========================
+FROM python:3.11-slim AS builder
 
-# Set environment variables
+# Environment setup
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-# Set work directory
 WORKDIR /app
 
-# Install system dependencies
+# Install build dependencies (only needed for compilation)
 RUN apt-get update && apt-get install -y \
     build-essential \
     libpq-dev \
@@ -15,28 +17,50 @@ RUN apt-get update && apt-get install -y \
     libgl1 \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies
+# Copy requirements
 COPY requirements.txt .
+
+# Install PyTorch CPU wheels explicitly
+RUN pip install torch==2.3.1+cpu torchvision==0.18.1+cpu torchaudio==2.3.1+cpu \
+    -f https://download.pytorch.org/whl/cpu/torch_stable.html
+
+# Install remaining dependencies
 RUN pip install --upgrade pip && pip install --no-cache-dir -r requirements.txt
 
-# Pre-download required NLTK data to avoid runtime downloads
+# ========================
+# Stage 2: Runtime
+# ========================
+FROM python:3.11-slim
+
+# Environment setup
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV NLTK_DATA=/usr/local/nltk_data
+
+WORKDIR /app
+
+# Install only runtime dependencies (lighter than build-essential)
+RUN apt-get update && apt-get install -y \
+    libgl1 \
+    tesseract-ocr \
+    poppler-utils \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy installed packages from builder
+COPY --from=builder /usr/local /usr/local
+
+# Pre-download NLTK data
 RUN python -m nltk.downloader -d /usr/local/nltk_data \
     punkt \
     averaged_perceptron_tagger \
     averaged_perceptron_tagger_eng \
     stopwords
 
-# Let NLTK know where to find the data
-ENV NLTK_DATA=/usr/local/nltk_data
-
-# Copy project
+# Copy project source
 COPY . .
 
-# Expose port (optional)
+# Expose port
 EXPOSE 8000
 
-# Collect static files (optional)
-# RUN python manage.py collectstatic --noinput
-
 # Run the server
-CMD ["gunicorn", "documentmanager.wsgi:application", "--bind", "0.0.0.0:8000", "--timeout", "120"]
+CMD ["gunicorn", "DocumentManager.wsgi:application", "--bind", "0.0.0.0:8000", "--timeout", "120"]

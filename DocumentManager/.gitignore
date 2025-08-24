@@ -5,3 +5,5 @@ uploaded_documents/
 .env
 steps.txt
 __pycache__/
+requirements1.txt
+myenv/
