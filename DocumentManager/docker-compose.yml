@@ -6,6 +6,7 @@ services:
     command: gunicorn DocumentManager.wsgi:application --bind 0.0.0.0:8000
     volumes:
       - .:/app
+      - static_volume:/app/staticfiles
     env_file:
       - .env
     ports:
@@ -28,3 +29,4 @@ services:
 
 volumes:
   postgres_data:
+  static_volume: 
