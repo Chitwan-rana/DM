@@ -3,7 +3,7 @@ name: Build and Push to Private Docker Hub
 on:
   push:
     branches:
-      - layout   
+      - layout 
 
 jobs:
   docker:
