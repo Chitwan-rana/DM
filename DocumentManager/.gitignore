@@ -7,4 +7,3 @@ steps.txt
 __pycache__/
 requirements1.txt
 myenv/
-staticfiles/
