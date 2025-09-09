@@ -672,7 +672,7 @@ def redact_confirm(request):
 
 def convert_pdf_view(request):
     """Display the PDF to Word conversion page"""
-    return render(request, 'IDP/PDF_TO_DOCX/pdf_to_docx.html')
+    return render(request, 'IDP/PDF_TO_DOCX/Pdf_to_docx.html')
 
 @csrf_exempt
 def upload_pdf(request):
