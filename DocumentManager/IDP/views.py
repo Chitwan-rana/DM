@@ -537,7 +537,7 @@ def convert_pdf(request):
             # ✅ Track operation
             track_pdf_operation('searchable', pdf_file.name)
 
-            return render(request, 'IDP/Searchable/success.html', {
+            return render(request, 'IDP/Searchable/Success.html', {
                 'original_filename': original_filename,
                 'searchable_filename': f"{base_name}_searchable.pdf"
             })
