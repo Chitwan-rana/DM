@@ -3,7 +3,8 @@ name: Deploy to VPS
 on:
   push:
     branches:
-      - main
+      - main 
+      - Chitwan-Dev
 
 jobs:
   deploy:
@@ -16,7 +17,7 @@ jobs:
         uses: appleboy/ssh-action@v0.1.10
         with:
           host: ${{ secrets.SERVER_IP }}
-          username: ${{ secrets.SERVER_USER }}
+          username: documentmanager
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            /home/cloudpanel/htdocs/documentmanager.ai/deploy.sh
+            bash /home/documentmanager/htdocs/documentmanager.ai/deploy.sh
